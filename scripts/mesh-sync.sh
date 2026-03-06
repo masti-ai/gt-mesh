@@ -72,7 +72,20 @@ NEW_KNOWLEDGE=$(cd "$CLONE_DIR" && dolt sql -q "SELECT COUNT(*) FROM mesh_knowle
 if [ "${NEW_KNOWLEDGE:-0}" -gt 0 ] 2>/dev/null; then
   echo "[sync] $NEW_KNOWLEDGE new knowledge entries — pulling..."
   mkdir -p "$KNOWLEDGE_DIR"
-  cd "$CLONE_DIR" && dolt sql -q "SELECT CONCAT('### ', title, '\n', content) FROM mesh_knowledge_entries WHERE updated_at > '${LAST_KNOWLEDGE_SYNC:-1970-01-01}' ORDER BY created_at;" -r csv 2>/dev/null | tail -n +2 | sed 's/^"//;s/"$//' | sed 's/""/"/g' | sed 's/\\n/\n/g' >> "$LEARNINGS" 2>/dev/null
+  # Pull entries, dedup by checking if title already exists in file
+  cd "$CLONE_DIR"
+  ENTRIES=$(dolt sql -q "SELECT CONCAT(title, '|||', content) FROM mesh_knowledge_entries WHERE updated_at > '${LAST_KNOWLEDGE_SYNC:-1970-01-01}' ORDER BY created_at;" -r csv 2>/dev/null | tail -n +2 | sed 's/^"//;s/"$//' | sed 's/""/"/g')
+  while IFS='|||' read -r ktitle kcontent; do
+    [ -z "$ktitle" ] && continue
+    # Skip if already in file
+    if [ -f "$LEARNINGS" ] && grep -qF "$ktitle" "$LEARNINGS" 2>/dev/null; then
+      continue
+    fi
+    echo "" >> "$LEARNINGS"
+    echo "### $ktitle" >> "$LEARNINGS"
+    echo "$kcontent" | sed 's/\\n/\n/g' >> "$LEARNINGS"
+    echo "" >> "$LEARNINGS"
+  done <<< "$ENTRIES"
   date -u +%Y-%m-%dT%H:%M:%SZ > "$KNOWLEDGE_DIR/.last-sync"
   cd "$GT_ROOT"
 fi
