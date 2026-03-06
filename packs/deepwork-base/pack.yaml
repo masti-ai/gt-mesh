@@ -1,11 +1,12 @@
 # Deepwork Base Pack — Foundation knowledge for Deepwork-AI mesh
-# Includes: core roles, mesh skills, shared knowledge, templates
+# Everything learned from building and using GT Mesh lives here.
+# Install: gt mesh packs install deepwork-base
 name: "deepwork-base"
-version: "1.0.0"
-description: "Foundation pack for Deepwork-AI mesh — roles, skills, knowledge, and templates"
+version: "2.0.0"
+description: "Foundation pack — roles, skills, bug fixes, anti-patterns, routing config, and governance"
 author: "gt-local"
 author_github: "freebird-ai"
-tags: "deepwork, foundation, roles, skills, mesh"
+tags: "deepwork, foundation, roles, skills, mesh, knowledge, patterns, routing"
 
 skills:
   - skills/gt-mesh-setup/SKILL.md
@@ -28,3 +29,6 @@ knowledge:
   - knowledge/shared-knowledge.md
   - knowledge/rules.md
   - knowledge/conventions.md
+  - knowledge/bug-fixes.md
+  - knowledge/anti-patterns.md
+  - knowledge/mail-routing.md
