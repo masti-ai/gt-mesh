@@ -63,4 +63,18 @@ if [ -n "$REMOTE_HASH" ] && [ "$LOCAL_HASH" != "$REMOTE_HASH" ]; then
   GT_ROOT="$GT_ROOT" MESH_YAML="$MESH_YAML" bash "$MESH_DIR/scripts/mesh-config.sh" pull --quiet 2>/dev/null
 fi
 
+# Pull new knowledge entries
+KNOWLEDGE_DIR="$GT_ROOT/.mesh-config/knowledge"
+LEARNINGS="$KNOWLEDGE_DIR/mesh-learnings.md"
+LAST_KNOWLEDGE_SYNC=""
+[ -f "$KNOWLEDGE_DIR/.last-sync" ] && LAST_KNOWLEDGE_SYNC=$(cat "$KNOWLEDGE_DIR/.last-sync")
+NEW_KNOWLEDGE=$(cd "$CLONE_DIR" && dolt sql -q "SELECT COUNT(*) FROM mesh_knowledge_entries WHERE updated_at > '${LAST_KNOWLEDGE_SYNC:-1970-01-01}';" -r csv 2>/dev/null | tail -n +2 | head -1)
+if [ "${NEW_KNOWLEDGE:-0}" -gt 0 ] 2>/dev/null; then
+  echo "[sync] $NEW_KNOWLEDGE new knowledge entries — pulling..."
+  mkdir -p "$KNOWLEDGE_DIR"
+  cd "$CLONE_DIR" && dolt sql -q "SELECT CONCAT('### ', title, '\n', content) FROM mesh_knowledge_entries WHERE updated_at > '${LAST_KNOWLEDGE_SYNC:-1970-01-01}' ORDER BY created_at;" -r csv 2>/dev/null | tail -n +2 | sed 's/^"//;s/"$//' | sed 's/""/"/g' | sed 's/\\n/\n/g' >> "$LEARNINGS" 2>/dev/null
+  date -u +%Y-%m-%dT%H:%M:%SZ > "$KNOWLEDGE_DIR/.last-sync"
+  cd "$GT_ROOT"
+fi
+
 echo "[sync] Done. Unread: ${UNREAD:-0} | Active peers: ${PEERS:-0}"
