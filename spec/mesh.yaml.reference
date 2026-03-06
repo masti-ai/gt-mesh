@@ -1,0 +1,253 @@
+# =============================================================================
+# GT Mesh Configuration Specification
+# =============================================================================
+# This is the COMPLETE mesh.yaml reference.
+# When a GT runs `gt mesh init`, it generates a mesh.yaml from this template.
+# Every mesh participant has their own mesh.yaml defining their identity,
+# permissions, and behavior in the network.
+# =============================================================================
+
+version: 1
+
+# =============================================================================
+# IDENTITY — Who is this Gas Town?
+# =============================================================================
+instance:
+  id: "gt-local"                      # Unique across the mesh (required)
+  name: "Pratham's Gas Town"           # Human-readable display name
+  role: "coordinator"                  # coordinator | worker | contributor
+  owner:
+    name: "Pratham"
+    email: "prathamonchain@gmail.com"
+    github: "freebird-ai"
+
+# =============================================================================
+# MESH BACKBONE — DoltHub connection
+# =============================================================================
+dolthub:
+  org: "deepwork"                      # DoltHub organization
+  database: "gt-mesh-mail"             # Shared mesh database
+  credential_pubkey: "bqh2k0mvac..."   # Your Dolt public key
+  sync_dir: "/tmp/gt-mesh-sync"        # Clone dir (NOT inside sql-server dir)
+  sync_interval: "2m"                  # How often to sync (30s, 1m, 2m, 5m)
+
+# =============================================================================
+# MESH RULES — Governance for this mesh network
+# =============================================================================
+# The mesh creator (coordinator) defines these rules.
+# All participants must follow them. Rules are stored in DoltHub and
+# enforced by each GT's mesh daemon.
+#
+# When someone joins via `gt mesh join`, they accept these rules automatically.
+# Rules can be updated by the coordinator — changes propagate on next sync.
+# =============================================================================
+rules:
+  # --- Naming & Identity ---
+  require_unique_ids: true             # No two GTs can have the same instance ID
+  require_owner_email: true            # Must provide owner email on join
+  require_github_auth: false           # Must have GitHub CLI authenticated
+
+  # --- Work Rules ---
+  branch_format: "gt/{instance_id}/{issue}-{desc}"  # Required branch naming
+  pr_target: "dev"                     # All PRs target this branch
+  commit_format: "conventional"        # conventional | free | template
+  commit_template: "{type}(issue-{N}): {description}"
+  require_issue_reference: true        # Every PR must reference an issue
+  max_concurrent_claims: 3             # Max beads a single GT can work on at once
+
+  # --- Review Rules ---
+  require_review: true                 # PRs need approval before merge
+  min_reviewers: 1                     # Minimum number of approvals
+  auto_merge_on_approve: false         # Auto-merge when all approvals received
+  allow_self_merge: false              # Can a GT merge its own PRs?
+
+  # --- Communication Rules ---
+  require_status_updates: true         # Workers must post progress updates
+  status_update_interval: "4h"         # How often (ignored if require=false)
+  announce_claims: true                # Broadcast when someone claims a bead
+  announce_completions: true           # Broadcast when work is done
+
+  # --- Quality Rules ---
+  require_tests: false                 # PRs must include tests
+  require_passing_ci: false            # CI must pass before review
+  max_pr_size: 500                     # Max lines changed per PR (0=unlimited)
+
+  # --- Security Rules ---
+  no_secrets_in_commits: true          # Block commits with .env, credentials, etc.
+  no_force_push: true                  # Block force pushes to shared branches
+  no_direct_push_to_main: true         # Block direct pushes to main/dev
+
+# =============================================================================
+# ACCESS CONTROL — Permission hierarchy
+# =============================================================================
+# Four access levels, from most restricted to full control:
+#
+#   read      — Can see shared rigs, beads, activity. Cannot create or modify.
+#   write     — Can create beads, claim work, create PRs. PRs need review.
+#   admin     — Can merge PRs, approve/reject, manage contributors.
+#   owner     — Full control. Can change rules, manage access, delete mesh.
+#
+# Each level inherits all permissions from levels below it.
+# =============================================================================
+access_control:
+  # Default role for new joiners (from invite)
+  default_role: "write"
+
+  # Role definitions with explicit permissions
+  roles:
+    read:
+      description: "Observer — can view everything but cannot modify"
+      permissions:
+        - view_shared_rigs           # See rig code and structure
+        - view_beads                 # See all shared beads
+        - view_activity_feed         # See mesh activity feed
+        - view_peers                 # See who's in the mesh
+        - send_messages              # Can chat via mesh mail
+        # Cannot: create beads, claim work, create PRs
+
+    write:
+      description: "Contributor — can create work and submit PRs for review"
+      inherits: "read"
+      permissions:
+        - create_beads               # Create issues/tasks on shared rigs
+        - claim_beads                # Claim unclaimed beads to work on
+        - create_branches            # Create feature branches
+        - create_prs                 # Submit PRs (require review)
+        - update_own_beads           # Edit beads they created
+        - close_own_beads            # Close beads they created
+        - publish_findings           # Share learnings to context DB
+        - publish_skills             # Share skills to mesh
+        # Cannot: merge PRs, approve PRs, manage access
+
+    admin:
+      description: "Reviewer — can approve, merge, and manage contributors"
+      inherits: "write"
+      permissions:
+        - approve_prs                # Approve PRs from contributors
+        - reject_prs                 # Request changes on PRs
+        - merge_prs                  # Merge approved PRs
+        - close_any_bead             # Close any bead (not just own)
+        - assign_beads               # Assign beads to specific GTs
+        - manage_write_access        # Grant/revoke write access
+        - manage_read_access         # Grant/revoke read access
+        - configure_auto_approve     # Set up auto-approval rules
+        # Cannot: change mesh rules, delete mesh, manage admins
+
+    owner:
+      description: "Full control — mesh creator with all permissions"
+      inherits: "admin"
+      permissions:
+        - change_mesh_rules          # Modify the rules section
+        - manage_admin_access        # Promote/demote admins
+        - delete_mesh                # Tear down the entire mesh
+        - force_revoke               # Immediately kick any participant
+        - configure_mesh_settings    # Change backbone settings
+        - transfer_ownership         # Transfer owner role
+
+  # --- Auto-Approval Rules ---
+  # Trusted GTs whose PRs skip the review gate and merge automatically.
+  # Only owners and admins can configure this.
+  auto_approve:
+    enabled: false                     # Master switch
+    trusted_gts: []                    # List of GT IDs with auto-merge
+    # Example:
+    # trusted_gts:
+    #   - id: "gt-docker"
+    #     rigs: ["gt_arcade"]          # Auto-approve only for these rigs
+    #     conditions:
+    #       max_lines: 100             # Only auto-approve small PRs
+    #       require_tests: true        # Must include tests
+
+# =============================================================================
+# SHARED RIGS — Which rigs are visible on the mesh
+# =============================================================================
+shared_rigs:
+  - name: "villa_ai_planogram"
+    repo: "Deepwork-AI/ai-planogram"
+    visibility: "invite-only"          # public | invite-only | private
+    accept_contributions: true
+    default_branch: "dev"
+    auto_approve_from: []              # GT IDs with auto-merge for this rig
+
+  - name: "villa_alc_ai"
+    repo: "Deepwork-AI/alc-ai-villa"
+    visibility: "private"              # Not shared on mesh
+    accept_contributions: false
+
+  - name: "gt_arcade"
+    repo: "Deepwork-AI/OfficeWorld"
+    visibility: "invite-only"
+    accept_contributions: true
+    default_branch: "dev"
+    auto_approve_from: []
+
+# =============================================================================
+# CONTEXT SHARING — Shared memory and learnings
+# =============================================================================
+context:
+  enabled: true
+
+  # What to share
+  share_findings: true                 # Patterns, mistakes, solutions
+  share_memory: false                  # MEMORY.md contents (sensitive — opt in)
+  share_activity: true                 # What you're working on
+
+  # What to accept
+  auto_adopt_findings: false           # Auto-write to local memory?
+  adoption_threshold: 3                # Min adoption count before auto-adopt
+  review_findings: true                # Deacon reviews before adopting
+
+  # Categories to share/accept
+  categories:
+    - patterns                         # Code patterns and conventions
+    - mistakes                         # Documented failures and fixes
+    - solutions                        # Solved problems
+    - architecture                     # Architecture decisions
+
+# =============================================================================
+# MESH FEED — Activity stream configuration
+# =============================================================================
+feed:
+  enabled: true
+
+  # What appears in the feed
+  show_claims: true                    # "gt-docker claimed issue #15"
+  show_completions: true               # "gt-docker completed issue #15"
+  show_prs: true                       # "gt-docker opened PR #42"
+  show_merges: true                    # "PR #42 merged by gt-local"
+  show_joins: true                     # "gt-alex joined the mesh"
+  show_findings: true                  # "gt-docker published: Auth timeout fix"
+  show_status: true                    # "gt-docker is working on #15"
+
+  # Feed delivery
+  deliver_to: "mayor/"                 # Which local address gets feed items
+  digest_interval: "1h"                # Batch feed items (0 = real-time)
+  max_items_per_digest: 20             # Cap to avoid noise
+
+# =============================================================================
+# DAEMON — Mesh background service
+# =============================================================================
+daemon:
+  enabled: true
+
+  # Polling
+  poll_interval: "2m"                  # How often to check DoltHub
+
+  # Auto-claim (for worker GTs)
+  auto_claim:
+    enabled: false                     # Auto-claim unclaimed beads?
+    max_concurrent: 2                  # Max beads to auto-claim
+    priority_threshold: 2              # Only auto-claim P0-P2 (skip P3-P4)
+    rig_filter: []                     # Only auto-claim from these rigs
+    # Example:
+    # rig_filter: ["gt_arcade", "villa_ai_planogram"]
+
+  # Auto-deliver (inject mesh messages into local gt mail)
+  auto_deliver:
+    enabled: true
+    deliver_to: "mayor/"               # Local address for mesh messages
+
+  # Heartbeat
+  heartbeat:
+    enabled: true
+    offline_threshold: "10m"           # Mark peer offline after this
