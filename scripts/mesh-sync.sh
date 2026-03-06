@@ -48,4 +48,15 @@ PEERS=$(dolt sql -q "SELECT COUNT(*) FROM peers WHERE status = 'active';" -r csv
 
 cd "$GT_ROOT"
 
+# Check for config updates
+MESH_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+CONFIG_CACHE="$GT_ROOT/.mesh-config"
+LOCAL_HASH=""
+[ -f "$CONFIG_CACHE/version" ] && LOCAL_HASH=$(cat "$CONFIG_CACHE/version")
+REMOTE_HASH=$(cd "$CLONE_DIR" && dolt sql -q "SELECT config_hash FROM mesh_config LIMIT 1;" -r csv 2>/dev/null | tail -n +2 | head -1)
+if [ -n "$REMOTE_HASH" ] && [ "$LOCAL_HASH" != "$REMOTE_HASH" ]; then
+  echo "[sync] Config updated — pulling..."
+  GT_ROOT="$GT_ROOT" MESH_YAML="$MESH_YAML" bash "$MESH_DIR/scripts/mesh-config.sh" pull --quiet 2>/dev/null
+fi
+
 echo "[sync] Done. Unread: ${UNREAD:-0} | Active peers: ${PEERS:-0}"

@@ -1,0 +1,17 @@
+# Reviewer Role — Behavioral Defaults
+# Soft preference: reviews by default, quality gate between work and production
+name: reviewer
+description: "Reviews by default. Approves/rejects PRs, merges approved work."
+default_actions:
+  - review_prs
+  - approve_or_reject
+  - merge_approved_prs
+  - close_beads
+can_also:
+  - write_code_for_fixes
+  - create_beads
+  - assign_work
+priorities:
+  - code_quality
+  - security_review
+  - test_coverage

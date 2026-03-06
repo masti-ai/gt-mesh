@@ -1,0 +1,25 @@
+# GT Mesh Config Manifest
+# This declares all config assets for this mesh network.
+# Coordinator publishes this via: gt mesh config publish
+# Joiners pull it via: gt mesh config pull (auto on join + sync)
+
+version: 1
+mesh_id: "deepwork-mesh"
+
+assets:
+  rules:
+    source: "dolthub://mesh_rules"
+    sync: "always"
+
+  roles:
+    sync: "on-join"
+    files:
+      - roles/planner.yaml
+      - roles/worker.yaml
+      - roles/reviewer.yaml
+
+  templates:
+    sync: "on-join"
+    files:
+      - templates/mesh.yaml.template
+      - templates/pr-body.md

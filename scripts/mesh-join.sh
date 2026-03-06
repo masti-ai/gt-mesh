@@ -171,7 +171,17 @@ else
   echo "       mesh.yaml already exists (preserved)"
 fi
 
+# Pull mesh config if available
+echo "[6/6] Pulling mesh config..."
+MESH_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+GT_ROOT="$GT_ROOT" MESH_YAML="$MESH_YAML" bash "$MESH_DIR/scripts/mesh-config.sh" pull --quiet 2>/dev/null
+if [ -d "$GT_ROOT/.mesh-config" ]; then
+  echo "       Config pulled to .mesh-config/"
+else
+  echo "       No config published yet (coordinator hasn't published)"
+fi
 echo ""
+
 echo "==========================================="
 echo "  Joined the mesh!"
 echo "==========================================="
