@@ -210,4 +210,102 @@ MIT. Use this to build your own army.
 
 ---
 
+## GT Worker Template (NEW)
+
+**Rapidly spawn new worker GTs with full agent configuration.**
+
+```bash
+# Clone the template
+cp -r gtconfig/templates/gt-worker ~/my-new-worker
+cd ~/my-new-worker
+
+# Customize
+vim mayor/town.json  # Change instance_id
+vim mayor/rigs.json  # Set your repos
+
+# Initialize
+gt init .
+gt prime
+```
+
+### What's Included
+
+- **3 Pre-configured Agents:**
+  - 👽 Chad Ji (master orchestrator)
+  - 👔 Muhchodu (business operator)
+  - 🎨 GigaGirl (content brainstormer)
+  
+- **Complete Setup:**
+  - Mayor, daemon, settings configs
+  - Agent SOUL.md, IDENTITY.md, USER.md
+  - HEARTBEAT.md for periodic checks
+
+### Template Location
+
+```
+templates/gt-worker/
+├── README.md                 # Quick start guide
+├── mayor/
+│   ├── town.json            # Edit: instance_id
+│   ├── rigs.json            # Edit: your repos
+│   └── daemon.json          # Patrol config
+├── agents/
+│   ├── chad-ji/             # Master orchestrator
+│   ├── muhchodu/            # Business agent
+│   └── gigagirl/            # Content agent
+└── memory/                  # Network knowledge
+    ├── MISTAKES.md          # Shared learnings
+    ├── SHARED_KNOWLEDGE.md  # Tips & tricks
+    └── RULES.md             # Hard constraints
+```
+
+---
+
+## GT Network Knowledge Sharing
+
+**All GT instances share knowledge.**
+
+When you spawn a new worker from the template, it gets:
+
+1. **MISTAKES.md** — Documented failures and fixes from all GTs
+2. **SHARED_KNOWLEDGE.md** — Tips, tricks, quick reference
+3. **RULES.md** — Absolute constraints (never break these)
+
+### How Knowledge Flows
+
+```
+Parent GT (gt-local)          Worker GTs (gt-docker, gt-worker-001, etc.)
+        |                               |
+        |  Maintains master copies      |
+        |  of MISTAKES.md               |
+        |  SHARED_KNOWLEDGE.md          |
+        |  RULES.md                     |
+        |------------------------------>|
+        |                        Workers pull updates
+        |
+        <------------------------------|
+                 Workers push new learnings via PRs
+```
+
+### Contributing Knowledge
+
+When you learn something:
+
+1. Update `templates/gt-worker/memory/MISTAKES.md` or `SHARED_KNOWLEDGE.md`
+2. Commit and push to `gtconfig`
+3. Other GTs pull the updates
+
+**Format for MISTAKES.md:**
+```markdown
+## YYYY-MM-DD: Brief description
+
+**Instance:** gt-docker
+**Context:** What you were doing
+**Mistake:** What went wrong
+**Fix:** How you fixed it
+**Lesson:** What others should know
+```
+
+---
+
 Built by [Deepwork AI](https://github.com/Deepwork-AI) with [Gas Town](https://github.com/freebird-ai).
