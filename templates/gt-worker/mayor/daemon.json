@@ -1,0 +1,65 @@
+{
+  "type": "daemon-patrol-config",
+  "version": 1,
+  "heartbeat": {
+    "enabled": true,
+    "interval": "3m"
+  },
+  "patrols": {
+    "refinery": {
+      "enabled": true,
+      "interval": "5m",
+      "agent": "refinery",
+      "rigs": [
+        "gtconfig",
+        "alc-ai-villa",
+        "ai-planogram"
+      ]
+    },
+    "witness": {
+      "enabled": true,
+      "interval": "5m",
+      "agent": "witness",
+      "rigs": [
+        "gtconfig",
+        "alc-ai-villa",
+        "ai-planogram"
+      ]
+    },
+    "deacon": {
+      "enabled": true,
+      "interval": "5m",
+      "agent": "deacon"
+    },
+    "dolt_backup": {
+      "enabled": true,
+      "interval": "15m"
+    },
+    "jsonl_git_backup": {
+      "enabled": true,
+      "interval": "15m",
+      "scrub": true
+    },
+    "wisp_reaper": {
+      "enabled": true,
+      "interval": "30m",
+      "max_age": "24h",
+      "delete_age": "168h"
+    },
+    "doctor_dog": {
+      "enabled": true,
+      "interval": "5m"
+    },
+    "compactor_dog": {
+      "enabled": true,
+      "interval": "24h",
+      "threshold": 500
+    },
+    "scheduled_maintenance": {
+      "enabled": true,
+      "window": "03:00",
+      "interval": "daily",
+      "threshold": 1000
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "rigs": {
+    "gtconfig": {
+      "git_url": "https://github.com/Deepwork-AI/gtconfig",
+      "added_at": "2026-03-06T00:00:00Z",
+      "beads": {
+        "repo": "https://github.com/Deepwork-AI/gtconfig",
+        "prefix": "gtc"
+      }
+    },
+    "alc-ai-villa": {
+      "git_url": "https://github.com/Deepwork-AI/alc-ai-villa",
+      "added_at": "2026-03-06T00:00:00Z",
+      "beads": {
+        "repo": "https://github.com/Deepwork-AI/alc-ai-villa",
+        "prefix": "aav"
+      }
+    },
+    "ai-planogram": {
+      "git_url": "https://github.com/Deepwork-AI/ai-planogram",
+      "added_at": "2026-03-06T00:00:00Z",
+      "beads": {
+        "repo": "https://github.com/Deepwork-AI/ai-planogram",
+        "prefix": "ap"
+      }
+    }
+  }
+}

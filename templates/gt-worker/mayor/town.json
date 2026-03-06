@@ -1,0 +1,14 @@
+{
+  "type": "town",
+  "version": 3,
+  "name": "gt-worker",
+  "owner": "prathamonchain@gmail.com",
+  "public_name": "gt-worker",
+  "created_at": "2026-03-06T00:00:00Z",
+  "instance_id": "gt-worker-001",
+  "github_sync": {
+    "enabled": true,
+    "poll_interval_seconds": 180,
+    "accept_tasks_from": ["gt-local"]
+  }
+}
