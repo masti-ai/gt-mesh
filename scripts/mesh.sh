@@ -65,6 +65,9 @@ case "$cmd" in
   rules)
     _run "$SCRIPTS_DIR/mesh-rules.sh" "$@"
     ;;
+  dash|dashboard)
+    _run "$SCRIPTS_DIR/mesh-dash.sh" "$@"
+    ;;
   help|--help|-h)
     echo "GT Mesh — Collaborative coding for Gas Town"
     echo ""
@@ -83,6 +86,7 @@ case "$cmd" in
     echo "  daemon        Start/stop/status of mesh daemon"
     echo "  access        Manage access control"
     echo "  rules         View/set mesh rules"
+    echo "  dash          Full-screen dashboard (--refresh N for live)"
     echo "  help          Show this help"
     echo ""
     echo "Config: $MESH_YAML"
