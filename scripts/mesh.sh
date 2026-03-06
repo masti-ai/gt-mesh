@@ -68,6 +68,12 @@ case "$cmd" in
   dash|dashboard)
     _run "$SCRIPTS_DIR/mesh-dash.sh" "$@"
     ;;
+  beads)
+    _run "$SCRIPTS_DIR/mesh-beads.sh" "$@"
+    ;;
+  skills)
+    _run "$SCRIPTS_DIR/mesh-skills.sh" "$@"
+    ;;
   help|--help|-h)
     echo "GT Mesh — Collaborative coding for Gas Town"
     echo ""
@@ -87,6 +93,8 @@ case "$cmd" in
     echo "  access        Manage access control"
     echo "  rules         View/set mesh rules"
     echo "  dash          Full-screen dashboard (--refresh N for live)"
+    echo "  beads         Shared beads — list, share, claim, unclaim"
+    echo "  skills        Shared skills — list, publish, install"
     echo "  help          Show this help"
     echo ""
     echo "Config: $MESH_YAML"
