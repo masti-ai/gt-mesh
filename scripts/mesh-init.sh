@@ -41,6 +41,18 @@ if [[ "$ROLE" != "coordinator" && "$ROLE" != "worker" && "$ROLE" != "contributor
   exit 1
 fi
 
+# If mesh.yaml already exists, read identity from it (re-init is idempotent)
+if [ -f "$MESH_YAML" ]; then
+  _yaml_val() { grep "$1" "$MESH_YAML" | head -1 | sed 's/.*: *"\{0,1\}\([^"]*\)"\{0,1\}/\1/'; }
+  [ -z "$GT_NAME" ] && GT_NAME=$(_yaml_val "^  id:")
+  [ -z "$OWNER_NAME" ] && OWNER_NAME=$(_yaml_val "name:" | head -1)
+  [ -z "$OWNER_GITHUB" ] && OWNER_GITHUB=$(_yaml_val "github:")
+  [ -z "$OWNER_EMAIL" ] && OWNER_EMAIL=$(_yaml_val "email:" | head -1)
+  [ -z "$ROLE" ] || true  # keep CLI --role if provided
+  EXISTING_ROLE=$(_yaml_val "^  role:")
+  [ -z "$ROLE" ] && ROLE="${EXISTING_ROLE:-coordinator}"
+fi
+
 # Auto-detect GT name if not provided
 if [ -z "$GT_NAME" ]; then
   if [ -f "$GT_ROOT/mayor/town.json" ]; then
@@ -51,7 +63,7 @@ if [ -z "$GT_NAME" ]; then
   fi
 fi
 
-# Collect identity if not provided
+# Collect identity if not provided (first init requires these)
 if [ -z "$OWNER_NAME" ]; then
   OWNER_NAME=$(git config --global user.name 2>/dev/null || echo "")
   if [ -z "$OWNER_NAME" ]; then

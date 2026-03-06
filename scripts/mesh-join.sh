@@ -42,28 +42,8 @@ echo ""
 echo "  Invite code: $INVITE_CODE"
 echo ""
 
-# Collect identity
-if [ -z "$OWNER_GITHUB" ]; then
-  echo "[error] GitHub username is required. Use --github <username>"
-  echo "        This is MANDATORY for contributor attribution."
-  exit 1
-fi
-
-OWNER_NAME=$(git config --global user.name 2>/dev/null || echo "$OWNER_GITHUB")
-OWNER_EMAIL=$(git config --global user.email 2>/dev/null || echo "")
-
-if [ -z "$GT_NAME" ]; then
-  GT_NAME="gt-$(hostname -s 2>/dev/null || echo 'unknown')"
-fi
-
-echo "[1/5] Identity"
-echo "       GT Name:  $GT_NAME"
-echo "       GitHub:   $OWNER_GITHUB"
-echo "       Email:    $OWNER_EMAIL"
-echo ""
-
 # Ensure DoltHub clone exists
-echo "[2/5] Connecting to mesh backbone..."
+echo "[1/5] Connecting to mesh backbone..."
 if [ -d "$CLONE_DIR/.dolt" ]; then
   cd "$CLONE_DIR"
   dolt pull 2>/dev/null || true
@@ -77,9 +57,9 @@ fi
 echo "       Connected"
 echo ""
 
-# Validate invite
-echo "[3/5] Validating invite..."
-INVITE_STATUS=$(dolt sql -q "SELECT status FROM invites WHERE code = '$INVITE_CODE';" -r csv 2>/dev/null | tail -1)
+# Validate invite FIRST (before collecting identity)
+echo "[2/5] Validating invite..."
+INVITE_STATUS=$(dolt sql -q "SELECT status FROM invites WHERE code = '$INVITE_CODE';" -r csv 2>/dev/null | tail -n +2 | head -1)
 
 if [ -z "$INVITE_STATUS" ]; then
   echo "[error] Invite code not found: $INVITE_CODE"
@@ -92,7 +72,7 @@ if [ "$INVITE_STATUS" != "active" ]; then
 fi
 
 # Check expiry
-EXPIRED=$(dolt sql -q "SELECT CASE WHEN expires_at IS NOT NULL AND expires_at < NOW() THEN 'yes' ELSE 'no' END as expired FROM invites WHERE code = '$INVITE_CODE';" -r csv 2>/dev/null | tail -1)
+EXPIRED=$(dolt sql -q "SELECT CASE WHEN expires_at IS NOT NULL AND expires_at < NOW() THEN 'yes' ELSE 'no' END as expired FROM invites WHERE code = '$INVITE_CODE';" -r csv 2>/dev/null | tail -n +2 | head -1)
 
 if [ "$EXPIRED" = "yes" ]; then
   echo "[error] Invite has expired. Ask the coordinator for a new one."
@@ -104,13 +84,33 @@ if [ "$EXPIRED" = "yes" ]; then
 fi
 
 # Get invite details
-INVITE_ROLE=$(dolt sql -q "SELECT role FROM invites WHERE code = '$INVITE_CODE';" -r csv 2>/dev/null | tail -1)
-INVITE_CREATOR=$(dolt sql -q "SELECT created_by FROM invites WHERE code = '$INVITE_CODE';" -r csv 2>/dev/null | tail -1)
-INVITE_EXPIRES=$(dolt sql -q "SELECT COALESCE(CAST(expires_at AS CHAR), 'never') FROM invites WHERE code = '$INVITE_CODE';" -r csv 2>/dev/null | tail -1)
+INVITE_ROLE=$(dolt sql -q "SELECT role FROM invites WHERE code = '$INVITE_CODE';" -r csv 2>/dev/null | tail -n +2 | head -1)
+INVITE_CREATOR=$(dolt sql -q "SELECT created_by FROM invites WHERE code = '$INVITE_CODE';" -r csv 2>/dev/null | tail -n +2 | head -1)
+INVITE_EXPIRES=$(dolt sql -q "SELECT COALESCE(CAST(expires_at AS CHAR), 'never') FROM invites WHERE code = '$INVITE_CODE';" -r csv 2>/dev/null | tail -n +2 | head -1)
 
 echo "       Valid invite from: $INVITE_CREATOR"
 echo "       Role: $INVITE_ROLE"
 echo "       Expires: $INVITE_EXPIRES"
+echo ""
+
+# Collect identity (only after invite is validated)
+if [ -z "$OWNER_GITHUB" ]; then
+  echo "[error] GitHub username is required. Use --github <username>"
+  echo "        This is MANDATORY for contributor attribution."
+  exit 1
+fi
+
+OWNER_NAME=$(git config --global user.name 2>/dev/null || echo "$OWNER_GITHUB")
+OWNER_EMAIL=$(git config --global user.email 2>/dev/null || echo "")
+
+if [ -z "$GT_NAME" ]; then
+  GT_NAME="gt-$(hostname -s 2>/dev/null || echo 'unknown')"
+fi
+
+echo "[3/5] Identity"
+echo "       GT Name:  $GT_NAME"
+echo "       GitHub:   $OWNER_GITHUB"
+echo "       Email:    $OWNER_EMAIL"
 echo ""
 
 # Claim the invite

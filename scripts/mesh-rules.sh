@@ -33,7 +33,7 @@ _ensure_table() {
 
 # Seed defaults if table is empty
 _seed_defaults() {
-  local COUNT=$(dolt sql -q "SELECT COUNT(*) FROM mesh_rules;" -r csv 2>/dev/null | tail -1)
+  local COUNT=$(dolt sql -q "SELECT COUNT(*) FROM mesh_rules;" -r csv 2>/dev/null | tail -n +2 | head -1)
   if [ "$COUNT" = "0" ] || [ -z "$COUNT" ]; then
     dolt sql -q "INSERT INTO mesh_rules VALUES
       ('branch_format', 'gt/{id}/{issue}-{desc}', 'work', '$GT_ID', NOW()),
@@ -81,7 +81,7 @@ case "$SUBCMD" in
     fi
     _ensure_table
     # Preserve category if rule exists, default to 'custom'
-    EXISTING_CAT=$(dolt sql -q "SELECT COALESCE(category, 'custom') FROM mesh_rules WHERE rule_name = '$RULE_NAME';" -r csv 2>/dev/null | tail -1)
+    EXISTING_CAT=$(dolt sql -q "SELECT category FROM mesh_rules WHERE rule_name = '$RULE_NAME';" -r csv 2>/dev/null | tail -n +2 | head -1)
     CATEGORY="${EXISTING_CAT:-custom}"
     dolt sql -q "REPLACE INTO mesh_rules (rule_name, rule_value, category, set_by, updated_at) VALUES ('$RULE_NAME', '$RULE_VALUE', '$CATEGORY', '$GT_ID', NOW());" 2>/dev/null
     dolt add . 2>/dev/null || true

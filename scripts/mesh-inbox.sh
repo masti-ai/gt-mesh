@@ -54,10 +54,10 @@ while IFS= read -r msg_id; do
   [ -z "$msg_id" ] && continue
   COUNT=$((COUNT + 1))
 
-  from_gt=$(dolt sql -q "SELECT from_gt FROM messages WHERE id = '$msg_id';" -r csv 2>/dev/null | tail -1)
-  subject=$(dolt sql -q "SELECT subject FROM messages WHERE id = '$msg_id';" -r csv 2>/dev/null | tail -1)
-  created=$(dolt sql -q "SELECT created_at FROM messages WHERE id = '$msg_id';" -r csv 2>/dev/null | tail -1)
-  priority=$(dolt sql -q "SELECT priority FROM messages WHERE id = '$msg_id';" -r csv 2>/dev/null | tail -1)
+  from_gt=$(dolt sql -q "SELECT from_gt FROM messages WHERE id = '$msg_id';" -r csv 2>/dev/null | tail -n +2 | head -1)
+  subject=$(dolt sql -q "SELECT subject FROM messages WHERE id = '$msg_id';" -r csv 2>/dev/null | tail -n +2 | head -1)
+  created=$(dolt sql -q "SELECT created_at FROM messages WHERE id = '$msg_id';" -r csv 2>/dev/null | tail -n +2 | head -1)
+  priority=$(dolt sql -q "SELECT priority FROM messages WHERE id = '$msg_id';" -r csv 2>/dev/null | tail -n +2 | head -1)
 
   PRI_LABEL="P${priority}"
   case "$priority" in
