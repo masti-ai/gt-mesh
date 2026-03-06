@@ -293,9 +293,10 @@ case "$SUBCMD" in
           echo "  [role]      $(basename "$fpath")"
           ;;
         rule)
-          # Apply rules to mesh_rules table
+          mkdir -p "$GT_ROOT/.mesh-config/rules"
+          cp "$PACKS_DIR/$PACK_NAME/$fpath" "$GT_ROOT/.mesh-config/rules/"
           RULES_APPLIED=$((RULES_APPLIED + 1))
-          echo "  [rule]      $(basename "$fpath") (saved, apply manually)"
+          echo "  [rule]      $(basename "$fpath")"
           ;;
         template)
           mkdir -p "$GT_ROOT/.mesh-config/templates"
@@ -351,14 +352,50 @@ YAML
 
     echo "Uninstalling: $PACK_NAME..."
 
-    # Remove skills that were installed by this pack
     if [ -d "$PACKS_DIR/$PACK_NAME" ]; then
+      # Remove skills
       find "$PACKS_DIR/$PACK_NAME" -name "SKILL.md" -type f 2>/dev/null | while read -r skill_file; do
         SKILL_NAME=$(basename "$(dirname "$skill_file")")
         [ "$SKILL_NAME" = "$PACK_NAME" ] && continue
         if [ -d "$HOME/.claude/skills/$SKILL_NAME" ]; then
           rm -rf "$HOME/.claude/skills/$SKILL_NAME"
           echo "  Removed skill: $SKILL_NAME"
+        fi
+      done
+
+      # Remove roles
+      find "$PACKS_DIR/$PACK_NAME/roles" -type f 2>/dev/null | while read -r role_file; do
+        BASENAME=$(basename "$role_file")
+        if [ -f "$GT_ROOT/.mesh-config/roles/$BASENAME" ]; then
+          rm -f "$GT_ROOT/.mesh-config/roles/$BASENAME"
+          echo "  Removed role: $BASENAME"
+        fi
+      done
+
+      # Remove rules
+      find "$PACKS_DIR/$PACK_NAME/rules" -type f 2>/dev/null | while read -r rule_file; do
+        BASENAME=$(basename "$rule_file")
+        if [ -f "$GT_ROOT/.mesh-config/rules/$BASENAME" ]; then
+          rm -f "$GT_ROOT/.mesh-config/rules/$BASENAME"
+          echo "  Removed rule: $BASENAME"
+        fi
+      done
+
+      # Remove templates
+      find "$PACKS_DIR/$PACK_NAME/templates" -type f 2>/dev/null | while read -r tmpl_file; do
+        BASENAME=$(basename "$tmpl_file")
+        if [ -f "$GT_ROOT/.mesh-config/templates/$BASENAME" ]; then
+          rm -f "$GT_ROOT/.mesh-config/templates/$BASENAME"
+          echo "  Removed template: $BASENAME"
+        fi
+      done
+
+      # Remove knowledge
+      find "$PACKS_DIR/$PACK_NAME/knowledge" -type f 2>/dev/null | while read -r know_file; do
+        BASENAME=$(basename "$know_file")
+        if [ -f "$GT_ROOT/.mesh-config/knowledge/$BASENAME" ]; then
+          rm -f "$GT_ROOT/.mesh-config/knowledge/$BASENAME"
+          echo "  Removed knowledge: $BASENAME"
         fi
       done
     fi
