@@ -16,42 +16,54 @@ export GT_ROOT MESH_DIR MESH_YAML
 cmd="${1:-help}"
 shift 2>/dev/null || true
 
+_run() {
+  local script="$1"; shift
+  if [ -f "$script" ]; then
+    bash "$script" "$@"
+  else
+    local name=$(basename "$script" .sh | sed 's/mesh-//')
+    echo "[error] '$name' is not yet implemented."
+    echo "        Track progress: https://github.com/Deepwork-AI/gt-mesh/issues"
+    exit 1
+  fi
+}
+
 case "$cmd" in
   init)
-    bash "$SCRIPTS_DIR/mesh-init.sh" "$@"
+    _run "$SCRIPTS_DIR/mesh-init.sh" "$@"
     ;;
   status)
-    bash "$SCRIPTS_DIR/mesh-status.sh" "$@"
+    _run "$SCRIPTS_DIR/mesh-status.sh" "$@"
     ;;
   send)
-    bash "$SCRIPTS_DIR/mesh-send.sh" "$@"
+    _run "$SCRIPTS_DIR/mesh-send.sh" "$@"
     ;;
   inbox)
-    bash "$SCRIPTS_DIR/mesh-inbox.sh" "$@"
+    _run "$SCRIPTS_DIR/mesh-inbox.sh" "$@"
     ;;
   invite)
-    bash "$SCRIPTS_DIR/mesh-invite.sh" "$@"
+    _run "$SCRIPTS_DIR/mesh-invite.sh" "$@"
     ;;
   join)
-    bash "$SCRIPTS_DIR/mesh-join.sh" "$@"
+    _run "$SCRIPTS_DIR/mesh-join.sh" "$@"
     ;;
   peers)
-    bash "$SCRIPTS_DIR/mesh-status.sh" --peers "$@"
+    _run "$SCRIPTS_DIR/mesh-status.sh" --peers "$@"
     ;;
   feed)
-    bash "$SCRIPTS_DIR/mesh-feed.sh" "$@"
+    _run "$SCRIPTS_DIR/mesh-feed.sh" "$@"
     ;;
   sync)
-    bash "$SCRIPTS_DIR/mesh-sync.sh" "$@"
+    _run "$SCRIPTS_DIR/mesh-sync.sh" "$@"
     ;;
   daemon)
-    bash "$SCRIPTS_DIR/mesh-daemon.sh" "$@"
+    _run "$SCRIPTS_DIR/mesh-daemon.sh" "$@"
     ;;
   access)
-    bash "$SCRIPTS_DIR/mesh-access.sh" "$@"
+    _run "$SCRIPTS_DIR/mesh-access.sh" "$@"
     ;;
   rules)
-    bash "$SCRIPTS_DIR/mesh-rules.sh" "$@"
+    _run "$SCRIPTS_DIR/mesh-rules.sh" "$@"
     ;;
   help|--help|-h)
     echo "GT Mesh — Collaborative coding for Gas Town"
