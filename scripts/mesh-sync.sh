@@ -3,8 +3,6 @@
 #
 # Usage: mesh-sync.sh
 
-set -e
-
 GT_ROOT="${GT_ROOT:-.}"
 MESH_YAML="${MESH_YAML:-$GT_ROOT/mesh.yaml}"
 
@@ -30,7 +28,7 @@ cd "$CLONE_DIR"
 
 # Commit any uncommitted local changes BEFORE pulling (prevents "cannot merge with uncommitted changes")
 dolt add . 2>/dev/null
-if dolt diff --staged --stat 2>/dev/null | grep -q "rows"; then
+if dolt diff --staged --stat 2>/dev/null | grep -qi "row"; then
   dolt commit -m "mesh: pre-sync commit from $GT_ID" --allow-empty 2>/dev/null || true
 fi
 
@@ -43,7 +41,7 @@ dolt sql -q "UPDATE peers SET last_seen = NOW() WHERE gt_id = '$GT_ID';" 2>/dev/
 
 # Commit and push
 dolt add . 2>/dev/null
-if dolt diff --staged --stat 2>/dev/null | grep -q "rows"; then
+if dolt diff --staged --stat 2>/dev/null | grep -qi "row"; then
   dolt commit -m "mesh: sync from $GT_ID" --allow-empty 2>/dev/null
 fi
 dolt push 2>/dev/null || echo "[warn] Push deferred"
