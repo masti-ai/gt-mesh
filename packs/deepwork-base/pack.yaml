@@ -1,0 +1,30 @@
+# Deepwork Base Pack — Foundation knowledge for Deepwork-AI mesh
+# Includes: core roles, mesh skills, shared knowledge, templates
+name: "deepwork-base"
+version: "1.0.0"
+description: "Foundation pack for Deepwork-AI mesh — roles, skills, knowledge, and templates"
+author: "gt-local"
+author_github: "freebird-ai"
+tags: "deepwork, foundation, roles, skills, mesh"
+
+skills:
+  - skills/gt-mesh-setup/SKILL.md
+  - skills/gt-mesh/SKILL.md
+  - skills/gt-mesh-contributor/SKILL.md
+
+roles:
+  - roles/planner.yaml
+  - roles/worker.yaml
+  - roles/reviewer.yaml
+
+rules:
+  - rules/deepwork-governance.yaml
+
+templates:
+  - templates/pr-body.md
+  - templates/mesh.yaml.template
+
+knowledge:
+  - knowledge/shared-knowledge.md
+  - knowledge/rules.md
+  - knowledge/conventions.md

@@ -80,6 +80,9 @@ case "$cmd" in
   auto-sync)
     _run "$SCRIPTS_DIR/mesh-auto-sync.sh" "$@"
     ;;
+  packs)
+    _run "$SCRIPTS_DIR/mesh-packs.sh" "$@"
+    ;;
   help|--help|-h)
     echo "GT Mesh — Collaborative coding for Gas Town"
     echo ""
@@ -102,6 +105,7 @@ case "$cmd" in
     echo "  beads         Shared beads — list, share, claim, unclaim"
     echo "  skills        Shared skills — list, publish, install"
     echo "  config        Mesh config — publish, pull, diff, status"
+    echo "  packs         Pack registry — list, install, publish, create"
     echo "  auto-sync     Broadcast work context — log, digest, broadcast"
     echo "  help          Show this help"
     echo ""

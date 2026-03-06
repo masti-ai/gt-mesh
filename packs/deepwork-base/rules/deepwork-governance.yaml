@@ -1,0 +1,40 @@
+# Deepwork Governance Rules
+# Applied to mesh_rules DoltHub table on install
+name: deepwork-governance
+description: "Standard governance rules for Deepwork-AI mesh participants"
+
+rules:
+  branch_format:
+    value: "gt/{id}/{issue}-{desc}"
+    category: "git"
+    description: "All branches follow gt/<instance-id>/<issue>-<desc> format"
+
+  pr_target:
+    value: "dev"
+    category: "git"
+    description: "All PRs target dev branch, never main"
+
+  require_review:
+    value: "true"
+    category: "governance"
+    description: "All PRs require at least one review before merge"
+
+  no_force_push:
+    value: "true"
+    category: "git"
+    description: "Force push is prohibited on shared branches"
+
+  no_secrets:
+    value: "true"
+    category: "security"
+    description: "Never commit .env, credentials, or API keys"
+
+  max_concurrent_claims:
+    value: "3"
+    category: "governance"
+    description: "Maximum beads a single GT can claim at once"
+
+  commit_format:
+    value: "conventional"
+    category: "git"
+    description: "Use conventional commits: feat/fix/chore/docs(scope): description"
