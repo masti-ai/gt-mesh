@@ -1,0 +1,31 @@
+# GT Mesh Docker Compose
+# Usage:
+#   cp .env.example .env   # edit with your values
+#   docker compose up -d   # start mesh sync daemon
+#   docker compose run mesh join MESH-XXXX-YYYY --github myuser
+#   docker compose exec mesh gt-mesh status
+
+services:
+  mesh:
+    build: .
+    container_name: gt-mesh
+    restart: unless-stopped
+    environment:
+      - GT_NAME=${GT_NAME:-gt-docker}
+      - GT_OWNER_NAME=${GT_OWNER_NAME}
+      - GT_OWNER_EMAIL=${GT_OWNER_EMAIL}
+      - GT_OWNER_GITHUB=${GT_OWNER_GITHUB}
+      - MESH_INVITE_CODE=${MESH_INVITE_CODE:-}
+      - SYNC_INTERVAL=${SYNC_INTERVAL:-120}
+      - AUTO_SYNC_CONFIG=${AUTO_SYNC_CONFIG:-true}
+      - DOLT_CREDS_PUB=${DOLT_CREDS_PUB:-}
+      - DOLT_CREDS_PRIV=${DOLT_CREDS_PRIV:-}
+    volumes:
+      # Persist mesh state across restarts
+      - mesh-data:/home/gt/gt
+      # Mount dolt credentials if available
+      - ${DOLT_CREDS_DIR:-./docker/empty-creds}:/home/gt/.dolt:ro
+    command: sync-loop
+
+volumes:
+  mesh-data:

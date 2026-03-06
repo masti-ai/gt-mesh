@@ -77,6 +77,9 @@ case "$cmd" in
   config)
     _run "$SCRIPTS_DIR/mesh-config.sh" "$@"
     ;;
+  auto-sync)
+    _run "$SCRIPTS_DIR/mesh-auto-sync.sh" "$@"
+    ;;
   help|--help|-h)
     echo "GT Mesh — Collaborative coding for Gas Town"
     echo ""
@@ -99,6 +102,7 @@ case "$cmd" in
     echo "  beads         Shared beads — list, share, claim, unclaim"
     echo "  skills        Shared skills — list, publish, install"
     echo "  config        Mesh config — publish, pull, diff, status"
+    echo "  auto-sync     Broadcast work context — log, digest, broadcast"
     echo "  help          Show this help"
     echo ""
     echo "Config: $MESH_YAML"

@@ -8,6 +8,9 @@ deacon/heartbeat.json
 deacon/state.json
 witness/
 
+# Docker
+docker/empty-creds/
+
 # OS
 .DS_Store
 Thumbs.db

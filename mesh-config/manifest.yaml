@@ -3,7 +3,7 @@
 # Coordinator publishes this via: gt mesh config publish
 # Joiners pull it via: gt mesh config pull (auto on join + sync)
 
-version: 1
+version: 2
 mesh_id: "deepwork-mesh"
 
 assets:
