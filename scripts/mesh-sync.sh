@@ -96,4 +96,11 @@ if [ "${UNREAD:-0}" -gt 0 ] 2>/dev/null; then
   bash "$MESH_DIR/scripts/mesh-mail-handler.sh" --auto-reply 2>/dev/null || true
 fi
 
+# Log sync activity to auto-sync (lightweight — no broadcast, just local+dolt log)
+MESH_DIR_SYNC="$(cd "$(dirname "$0")/.." && pwd)"
+GT_ROOT="$GT_ROOT" MESH_YAML="$MESH_YAML" bash "$MESH_DIR_SYNC/scripts/mesh-auto-sync.sh" log "sync completed: unread=${UNREAD:-0} peers=${PEERS:-0}" 2>/dev/null || true
+
+# Run self-improving loop review (check for new improvements to graduate)
+GT_ROOT="$GT_ROOT" MESH_YAML="$MESH_YAML" bash "$MESH_DIR_SYNC/scripts/mesh-improve.sh" review 2>/dev/null | head -5 || true
+
 echo "[sync] Done. Unread: ${UNREAD:-0} | Active peers: ${PEERS:-0}"

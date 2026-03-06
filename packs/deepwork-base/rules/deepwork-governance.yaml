@@ -38,3 +38,64 @@ rules:
     value: "conventional"
     category: "git"
     description: "Use conventional commits: feat/fix/chore/docs(scope): description"
+
+  # --- Worker SLA Rules ---
+
+  worker_claim_timeout_hours:
+    value: "24"
+    category: "sla"
+    description: "Claimed issue with no PR within 24h -> auto-unclaim + escalate to Mayor"
+
+  worker_pr_deadline_hours:
+    value: "48"
+    category: "sla"
+    description: "Max time from claim to PR. Violation triggers reassignment."
+
+  worker_min_delivery_per_week:
+    value: "3"
+    category: "sla"
+    description: "Workers must deliver at least 3 merged PRs per week"
+
+  stale_claim_action:
+    value: "unclaim_and_escalate"
+    category: "sla"
+    description: "On timeout: remove gt-status:claimed, restore gt-status:pending, post escalation comment, notify Mayor"
+
+  worker_deprioritized_work_check:
+    value: "true"
+    category: "sla"
+    description: "Workers MUST stop work on closed/deprioritized issues within 1 sync cycle. Continued work = violation."
+
+  reassignment_after_violations:
+    value: "2"
+    category: "sla"
+    description: "After 2 SLA violations, worker loses priority. New issues go to other workers first."
+
+  # --- Cron Hygiene Rules ---
+
+  cron_registry_required:
+    value: "true"
+    category: "ops"
+    description: "All cron jobs must be in .gt-mesh/cron-registry.yaml. Unregistered crons killed on audit."
+
+  cron_max_age_days:
+    value: "30"
+    category: "ops"
+    description: "Cron jobs older than 30 days with no output are auto-removed"
+
+  cron_must_have_owner:
+    value: "true"
+    category: "ops"
+    description: "Every cron has an owner GT. Decommissioned GT = crons removed."
+
+  # --- Issue Lifecycle Rules ---
+
+  issue_closed_means_stop:
+    value: "true"
+    category: "governance"
+    description: "Closed issue = ALL work stops. Workers must check issue state before every commit."
+
+  deprioritized_kills_crons:
+    value: "true"
+    category: "governance"
+    description: "When an issue/epic is deprioritized, all associated crons and polling jobs are removed."

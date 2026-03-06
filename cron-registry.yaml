@@ -1,0 +1,48 @@
+# GT Mesh Cron Registry
+# ALL cron jobs must be registered here. Unregistered crons are killed on audit.
+# Format: name, schedule, command, owner, purpose, created, expires (optional)
+
+crons:
+  dolthub-sync:
+    schedule: "*/2 * * * *"
+    command: "/home/pratham2/gt/mayor/sync-dolthub.sh >> /tmp/dolthub-sync.log 2>&1"
+    owner: "gt-local"
+    purpose: "Sync DoltHub mail database for cross-GT communication"
+    created: "2026-03-06"
+
+  mesh-sync:
+    schedule: "*/2 * * * *"
+    command: "GT_ROOT=/home/pratham2/gt MESH_YAML=/home/pratham2/gt/mesh.yaml /bin/bash /home/pratham2/gt/.gt-mesh/scripts/mesh-sync.sh >> /tmp/gt-mesh-sync.log 2>&1"
+    owner: "gt-local"
+    purpose: "Mesh heartbeat, knowledge sync, mail handler trigger"
+    created: "2026-03-06"
+
+  deacon-pr-review:
+    schedule: "*/30 * * * *"
+    command: "bash /home/pratham2/gt/.gt-mesh/scripts/deacon-pr-review.sh"
+    owner: "gt-local"
+    purpose: "Auto-review and merge approved PRs across Deepwork-AI repos"
+    created: "2026-03-06"
+
+  mesh-improve-review:
+    schedule: "*/10 * * * *"
+    command: "GT_ROOT=/home/pratham2/gt MESH_YAML=/home/pratham2/gt/mesh.yaml bash /home/pratham2/gt/.gt-mesh/scripts/mesh-improve.sh review >> /tmp/mesh-improve.log 2>&1"
+    owner: "gt-local"
+    purpose: "Self-improving loop: review and graduate improvements"
+    created: "2026-03-06"
+
+  mesh-autosync-digest:
+    schedule: "0 */2 * * *"
+    command: "GT_ROOT=/home/pratham2/gt MESH_YAML=/home/pratham2/gt/mesh.yaml bash /home/pratham2/gt/.gt-mesh/scripts/mesh-auto-sync.sh digest >> /tmp/mesh-autosync.log 2>&1"
+    owner: "gt-local"
+    purpose: "Broadcast work digest to mesh peers every 2 hours"
+    created: "2026-03-06"
+
+# REMOVED:
+#  check-gtconfig-issues:
+#    schedule: "*/30 * * * *"
+#    command: "/home/pratham2/gt/mayor/check-gtconfig-issues.sh"
+#    owner: "gt-local"
+#    purpose: "REMOVED 2026-03-06 — gtconfig work deprioritized, cron was generating noise"
+#    removed: "2026-03-06"
+#    reason: "gtconfig issues closed, work cancelled"

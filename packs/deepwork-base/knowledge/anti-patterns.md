@@ -55,3 +55,27 @@ gt peek <target>
 
 **Wrong:** Starting a session and jumping straight into work
 **Right:** Check `gt-mesh inbox` first — there may be pending instructions or context
+
+## Don't Work on Closed/Deprioritized Issues
+
+**Wrong:** Continuing to code, poll, or run crons for issues the Mayor has closed
+**Right:** When an issue is closed, ALL work stops immediately. Delete the branch, remove crons, move on.
+The Mayor's close is final. Continued work on closed issues is an SLA violation.
+
+## Don't Create Unregistered Cron Jobs
+
+**Wrong:** Adding cron entries ad-hoc without telling anyone
+**Right:** Every cron must be registered in `.gt-mesh/cron-registry.yaml` with owner and purpose.
+Unregistered crons are killed on audit. This prevents ghost jobs generating noise for months.
+
+## Don't Claim Issues Without Delivering
+
+**Wrong:** Marking an issue as `gt-status:claimed` and then doing nothing for days
+**Right:** Claim only what you can deliver within 48 hours. If blocked, comment on the issue and unclaim.
+The SLA deacon checks every 30 minutes. No PR in 24h = warning. No PR in 30h = auto-unclaim + violation.
+
+## Don't Ignore Mesh Mail
+
+**Wrong:** Receiving P0 mesh mail and continuing to work on whatever you were doing
+**Right:** P0 mail = drop everything. Read it. Act on it. Reply within 1 hour.
+The mesh mail system is the coordination backbone. Ignoring it is like ignoring your boss.
