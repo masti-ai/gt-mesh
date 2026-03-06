@@ -90,4 +90,10 @@ if [ "${NEW_KNOWLEDGE:-0}" -gt 0 ] 2>/dev/null; then
   cd "$GT_ROOT"
 fi
 
+# Handle incoming mail (route P0/P1 to mayor, auto-reply to pings)
+MESH_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+if [ "${UNREAD:-0}" -gt 0 ] 2>/dev/null; then
+  bash "$MESH_DIR/scripts/mesh-mail-handler.sh" --auto-reply 2>/dev/null || true
+fi
+
 echo "[sync] Done. Unread: ${UNREAD:-0} | Active peers: ${PEERS:-0}"
