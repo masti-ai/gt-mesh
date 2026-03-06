@@ -159,103 +159,33 @@ access_control:
     #       require_tests: true        # Must include tests
 
 # =============================================================================
-# BEHAVIORAL ROLES — What each GT actually DOES
+# BEHAVIORAL ROLES — Default behavior preferences for GTs
 # =============================================================================
-# This section defines the operational behavior of GTs in the mesh.
-# A GT's role determines what it does AUTOMATICALLY — not just what it
-# CAN do (that's access_control above), but what it WILL do.
+# Roles are SOFT PREFERENCES, not hard blocks. Any GT can step in and do
+# any work when needed — all agents have full context. The role just sets
+# the default behavior so agents know what to prioritize.
 #
-# The key insight: a "planner" GT should NEVER write code itself.
-# A "worker" GT should NEVER plan or assign work. This is DETERMINISTIC —
-# the config makes it impossible for a GT to violate its role.
+# Three roles:
+#   planner  — Delegates by default. Creates beads, assigns work, reviews PRs.
+#              Can write code if workers are unavailable or task is small.
+#   worker   — Executes by default. Writes code, creates PRs.
+#              Does not merge own PRs. Does not assign work to others.
+#   reviewer — Reviews by default. Approves/rejects PRs, merges.
+#              Quality gate between worker output and production.
+#
+# Configurable per GT. Anyone can change their role in mesh.yaml.
 # =============================================================================
-behavioral_roles:
-  # Define each role's behavior
-  definitions:
-    planner:
-      description: "Plans work, creates beads, assigns tasks, reviews PRs. NEVER writes code."
-      behavior:
-        creates_beads: true              # Creates issues/tasks for others
-        assigns_work: true               # Sends work to other GTs
-        reviews_prs: true                # Reviews and approves/rejects PRs
-        merges_prs: true                 # Merges approved PRs
-        writes_code: false               # NEVER writes code (hard block)
-        claims_beads: false              # Does NOT pick up work items
-        delegates_always: true           # MUST delegate every task to a worker
-      instructions: |
-        You are a PLANNER. Your job is to coordinate, not to execute.
-        When you receive a task:
-        1. Break it into beads
-        2. Assign each bead to a worker GT via mesh send
-        3. Track progress via mesh feed
-        4. Review PRs when they come in
-        5. NEVER write code yourself — even for "small fixes"
-        If no workers are available, tell the user. Do NOT do it yourself.
+behavioral_role:
+  # This GT's default role
+  this_gt: "planner"                     # planner | worker | reviewer
 
-    worker:
-      description: "Executes code, creates PRs, follows instructions. Does NOT plan."
-      behavior:
-        creates_beads: false             # Does NOT create work items
-        assigns_work: false              # Does NOT assign to others
-        reviews_prs: false               # Does NOT review
-        merges_prs: false                # NEVER merges
-        writes_code: true                # Primary function: write code
-        claims_beads: true               # Picks up assigned/unclaimed work
-        delegates_always: false          # Does work directly
-      instructions: |
-        You are a WORKER. Your job is to execute tasks assigned to you.
-        When you receive a task:
-        1. Claim the bead
-        2. Create a feature branch
-        3. Write the code
-        4. Create a PR targeting dev
-        5. Wait for review feedback
-        NEVER push to main/dev directly. NEVER merge your own PRs.
-
-    reviewer:
-      description: "Reviews PRs and contributions. Can approve and merge."
-      behavior:
-        creates_beads: false
-        assigns_work: false
-        reviews_prs: true
-        merges_prs: true
-        writes_code: false
-        claims_beads: false
-        delegates_always: false
-      instructions: |
-        You are a REVIEWER. Your job is to review PRs and approve/reject.
-        Check for: security issues, code quality, test coverage.
-        Approve or request changes. Merge when ready.
-
-    contributor:
-      description: "Creates beads and suggestions. Does not execute or merge."
-      behavior:
-        creates_beads: true
-        assigns_work: false
-        reviews_prs: false
-        merges_prs: false
-        writes_code: false
-        claims_beads: false
-        delegates_always: false
-      instructions: |
-        You are a CONTRIBUTOR. You can create beads (suggestions, bug reports,
-        feature requests) but you do not execute them. The coordinator's
-        workers will pick them up.
-
-  # Assign behavioral role to this GT
-  # This OVERRIDES any tendency for the GT to act outside its role.
-  this_gt: "planner"                     # planner | worker | reviewer | contributor
-
-  # Assign behavioral roles to known peers
-  peer_roles:
+  # Known peers and their roles
+  peer_roles: {}
     # Example:
     # gt-docker:
-    #   behavioral_role: "worker"
+    #   role: "worker"
     #   specialties: ["backend", "infrastructure"]
     #   max_concurrent: 3
-    # gt-friend:
-    #   behavioral_role: "contributor"
-    #   specialties: ["frontend", "design"]
 
 # =============================================================================
 # SHARED RIGS — Which rigs are visible on the mesh
