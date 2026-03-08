@@ -301,6 +301,10 @@ $IMP_DESC"
 
   history)
     LIMIT="${1:-20}"
+    # Validate LIMIT is a positive integer to prevent SQL injection
+    if ! [[ "$LIMIT" =~ ^[0-9]+$ ]]; then
+      LIMIT=20
+    fi
 
     _ensure_clone
     _ensure_tables

@@ -59,7 +59,11 @@ echo ""
 
 # Validate invite FIRST (before collecting identity)
 echo "[2/5] Validating invite..."
-INVITE_STATUS=$(dolt sql -q "SELECT status FROM invites WHERE code = '$INVITE_CODE';" -r csv 2>/dev/null | tail -n +2 | head -1)
+
+# Escape for SQL before first use (defense in depth)
+INVITE_CODE_ESC=$(echo "$INVITE_CODE" | sed "s/'/''/g")
+
+INVITE_STATUS=$(dolt sql -q "SELECT status FROM invites WHERE code = '$INVITE_CODE_ESC';" -r csv 2>/dev/null | tail -n +2 | head -1)
 
 if [ -z "$INVITE_STATUS" ]; then
   echo "[error] Invite code not found: $INVITE_CODE"
@@ -72,21 +76,21 @@ if [ "$INVITE_STATUS" != "active" ]; then
 fi
 
 # Check expiry
-EXPIRED=$(dolt sql -q "SELECT CASE WHEN expires_at IS NOT NULL AND expires_at < NOW() THEN 'yes' ELSE 'no' END as expired FROM invites WHERE code = '$INVITE_CODE';" -r csv 2>/dev/null | tail -n +2 | head -1)
+EXPIRED=$(dolt sql -q "SELECT CASE WHEN expires_at IS NOT NULL AND expires_at < NOW() THEN 'yes' ELSE 'no' END as expired FROM invites WHERE code = '$INVITE_CODE_ESC';" -r csv 2>/dev/null | tail -n +2 | head -1)
 
 if [ "$EXPIRED" = "yes" ]; then
   echo "[error] Invite has expired. Ask the coordinator for a new one."
-  dolt sql -q "UPDATE invites SET status = 'expired' WHERE code = '$INVITE_CODE';" 2>/dev/null
+  dolt sql -q "UPDATE invites SET status = 'expired' WHERE code = '$INVITE_CODE_ESC';" 2>/dev/null
   dolt add . 2>/dev/null || true
-  dolt commit -m "mesh: expire invite $INVITE_CODE" --allow-empty 2>/dev/null || true
+  dolt commit -m "mesh: expire invite $INVITE_CODE_ESC" --allow-empty 2>/dev/null || true
   dolt push 2>/dev/null || true
   exit 1
 fi
 
 # Get invite details
-INVITE_ROLE=$(dolt sql -q "SELECT role FROM invites WHERE code = '$INVITE_CODE';" -r csv 2>/dev/null | tail -n +2 | head -1)
-INVITE_CREATOR=$(dolt sql -q "SELECT created_by FROM invites WHERE code = '$INVITE_CODE';" -r csv 2>/dev/null | tail -n +2 | head -1)
-INVITE_EXPIRES=$(dolt sql -q "SELECT COALESCE(CAST(expires_at AS CHAR), 'never') FROM invites WHERE code = '$INVITE_CODE';" -r csv 2>/dev/null | tail -n +2 | head -1)
+INVITE_ROLE=$(dolt sql -q "SELECT role FROM invites WHERE code = '$INVITE_CODE_ESC';" -r csv 2>/dev/null | tail -n +2 | head -1)
+INVITE_CREATOR=$(dolt sql -q "SELECT created_by FROM invites WHERE code = '$INVITE_CODE_ESC';" -r csv 2>/dev/null | tail -n +2 | head -1)
+INVITE_EXPIRES=$(dolt sql -q "SELECT COALESCE(CAST(expires_at AS CHAR), 'never') FROM invites WHERE code = '$INVITE_CODE_ESC';" -r csv 2>/dev/null | tail -n +2 | head -1)
 
 echo "       Valid invite from: $INVITE_CREATOR"
 echo "       Role: $INVITE_ROLE"
@@ -123,19 +127,21 @@ echo ""
 echo "[4/5] Claiming invite..."
 
 # Escape for SQL (defense in depth - values are validated but add extra safety)
-INVITE_CODE_ESC=$(echo "$INVITE_CODE" | sed "s/'/''/g")
+# Note: INVITE_CODE_ESC already defined earlier at line 64
 GT_NAME_ESC=$(echo "$GT_NAME" | sed "s/'/''/g")
 OWNER_NAME_ESC=$(echo "$OWNER_NAME" | sed "s/'/''/g")
 OWNER_EMAIL_ESC=$(echo "$OWNER_EMAIL" | sed "s/'/''/g")
 OWNER_GITHUB_ESC=$(echo "$OWNER_GITHUB" | sed "s/'/''/g")
 INVITE_CREATOR_ESC=$(echo "$INVITE_CREATOR" | sed "s/'/''/g")
+INVITE_ROLE_ESC=$(echo "$INVITE_ROLE" | sed "s/'/''/g")
 
 dolt sql -q "UPDATE invites SET claimed_by = '$GT_NAME_ESC', claimed_at = NOW(), status = 'claimed' WHERE code = '$INVITE_CODE_ESC';" 2>/dev/null
 
 # Register as peer
 DOLT_PUBKEY=$(dolt creds ls 2>/dev/null | grep "^  " | head -1 | awk '{print $1}' || echo "unknown")
+DOLT_PUBKEY_ESC=$(echo "$DOLT_PUBKEY" | sed "s/'/''/g")
 
-dolt sql -q "REPLACE INTO peers (gt_id, name, owner, role, status, dolt_pubkey, joined_at, last_seen, invited_by, metadata) VALUES ('$GT_NAME_ESC', '$GT_NAME_ESC', '$OWNER_NAME_ESC <$OWNER_EMAIL_ESC>', '$INVITE_ROLE', 'active', '$DOLT_PUBKEY', NOW(), NOW(), '$INVITE_CREATOR_ESC', JSON_OBJECT('github', '$OWNER_GITHUB_ESC', 'invite_code', '$INVITE_CODE_ESC'));" 2>/dev/null
+dolt sql -q "REPLACE INTO peers (gt_id, name, owner, role, status, dolt_pubkey, joined_at, last_seen, invited_by, metadata) VALUES ('$GT_NAME_ESC', '$GT_NAME_ESC', '$OWNER_NAME_ESC <$OWNER_EMAIL_ESC>', '$INVITE_ROLE_ESC', 'active', '$DOLT_PUBKEY_ESC', NOW(), NOW(), '$INVITE_CREATOR_ESC', JSON_OBJECT('github', '$OWNER_GITHUB_ESC', 'invite_code', '$INVITE_CODE_ESC'));" 2>/dev/null
 
 dolt add . 2>/dev/null || true
 dolt commit -m "mesh: $GT_NAME joined via invite $INVITE_CODE (role: $INVITE_ROLE)" --allow-empty 2>/dev/null || true

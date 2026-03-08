@@ -87,10 +87,13 @@ case "$SUBCMD" in
     fi
 
     # Validate RULE_VALUE is safe (no newlines or dangerous chars)
-    if echo "$RULE_VALUE" | grep -qE "[\n\r\0]"; then
-      echo "[error] Rule value contains invalid characters."
-      exit 1
-    fi
+    # Use bash pattern matching since grep -qE "[\n\r\0]" doesn't work in bash (\n matches literal n)
+    case "$RULE_VALUE" in
+      *[$'\n'$'\r']*|*[$'\0']*)
+        echo "[error] Rule value contains invalid characters (newlines or null bytes)."
+        exit 1
+        ;;
+    esac
 
     _ensure_table
 
