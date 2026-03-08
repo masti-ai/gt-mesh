@@ -25,6 +25,18 @@ if [ -z "$TO_GT" ] || [ -z "$SUBJECT" ]; then
   exit 1
 fi
 
+# Validate TO_GT format (alphanumeric, dash, underscore only)
+if ! echo "$TO_GT" | grep -qE "^[a-zA-Z0-9_-]+$"; then
+  echo "[error] Invalid TO_GT format. Use alphanumeric, dash, or underscore only."
+  exit 1
+fi
+
+# Validate priority is a number
+if ! [[ "$PRIORITY" =~ ^[0-3]$ ]]; then
+  echo "[error] Priority must be 0-3"
+  exit 1
+fi
+
 # Read identity from mesh.yaml
 GT_ID=$(grep "^  id:" "$MESH_YAML" | head -1 | sed 's/.*: *"\{0,1\}\([^"]*\)"\{0,1\}/\1/')
 CLONE_DIR=$(grep "clone_dir:" "$MESH_YAML" | head -1 | sed 's/.*: *"\{0,1\}\([^"]*\)"\{0,1\}/\1/')
@@ -40,11 +52,13 @@ MSG_ID="msg-$(date +%s)-$(head -c4 /dev/urandom | xxd -p)"
 cd "$CLONE_DIR"
 dolt pull 2>/dev/null || true
 
-# Escape single quotes in body for SQL
+# Escape single quotes in body for SQL (defense in depth)
 BODY_ESC=$(echo "$BODY" | sed "s/'/''/g")
 SUBJECT_ESC=$(echo "$SUBJECT" | sed "s/'/''/g")
+# TO_GT is validated above but escape anyway for defense in depth
+TO_GT_ESC=$(echo "$TO_GT" | sed "s/'/''/g")
 
-dolt sql -q "INSERT INTO messages (id, from_gt, from_addr, to_gt, to_addr, subject, body, priority, created_at) VALUES ('$MSG_ID', '$GT_ID', 'mayor/', '$TO_GT', 'mayor/', '$SUBJECT_ESC', '$BODY_ESC', $PRIORITY, NOW());" 2>/dev/null
+dolt sql -q "INSERT INTO messages (id, from_gt, from_addr, to_gt, to_addr, subject, body, priority, created_at) VALUES ('$MSG_ID', '$GT_ID', 'mayor/', '$TO_GT_ESC', 'mayor/', '$SUBJECT_ESC', '$BODY_ESC', $PRIORITY, NOW());" 2>/dev/null
 
 dolt add . 2>/dev/null
 dolt commit -m "mesh: $GT_ID -> $TO_GT: $SUBJECT_ESC" --allow-empty 2>/dev/null

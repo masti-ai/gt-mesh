@@ -100,6 +100,12 @@ if [ -z "$OWNER_GITHUB" ]; then
   exit 1
 fi
 
+# Validate GitHub username format (alphanumeric, dash, underscore only)
+if ! echo "$OWNER_GITHUB" | grep -qE "^[a-zA-Z0-9][-a-zA-Z0-9_]*$"; then
+  echo "[error] Invalid GitHub username format"
+  exit 1
+fi
+
 OWNER_NAME=$(git config --global user.name 2>/dev/null || echo "$OWNER_GITHUB")
 OWNER_EMAIL=$(git config --global user.email 2>/dev/null || echo "")
 
@@ -115,12 +121,21 @@ echo ""
 
 # Claim the invite
 echo "[4/5] Claiming invite..."
-dolt sql -q "UPDATE invites SET claimed_by = '$GT_NAME', claimed_at = NOW(), status = 'claimed' WHERE code = '$INVITE_CODE';" 2>/dev/null
+
+# Escape for SQL (defense in depth - values are validated but add extra safety)
+INVITE_CODE_ESC=$(echo "$INVITE_CODE" | sed "s/'/''/g")
+GT_NAME_ESC=$(echo "$GT_NAME" | sed "s/'/''/g")
+OWNER_NAME_ESC=$(echo "$OWNER_NAME" | sed "s/'/''/g")
+OWNER_EMAIL_ESC=$(echo "$OWNER_EMAIL" | sed "s/'/''/g")
+OWNER_GITHUB_ESC=$(echo "$OWNER_GITHUB" | sed "s/'/''/g")
+INVITE_CREATOR_ESC=$(echo "$INVITE_CREATOR" | sed "s/'/''/g")
+
+dolt sql -q "UPDATE invites SET claimed_by = '$GT_NAME_ESC', claimed_at = NOW(), status = 'claimed' WHERE code = '$INVITE_CODE_ESC';" 2>/dev/null
 
 # Register as peer
 DOLT_PUBKEY=$(dolt creds ls 2>/dev/null | grep "^  " | head -1 | awk '{print $1}' || echo "unknown")
 
-dolt sql -q "REPLACE INTO peers (gt_id, name, owner, role, status, dolt_pubkey, joined_at, last_seen, invited_by, metadata) VALUES ('$GT_NAME', '$GT_NAME', '$OWNER_NAME <$OWNER_EMAIL>', '$INVITE_ROLE', 'active', '$DOLT_PUBKEY', NOW(), NOW(), '$INVITE_CREATOR', JSON_OBJECT('github', '$OWNER_GITHUB', 'invite_code', '$INVITE_CODE'));" 2>/dev/null
+dolt sql -q "REPLACE INTO peers (gt_id, name, owner, role, status, dolt_pubkey, joined_at, last_seen, invited_by, metadata) VALUES ('$GT_NAME_ESC', '$GT_NAME_ESC', '$OWNER_NAME_ESC <$OWNER_EMAIL_ESC>', '$INVITE_ROLE', 'active', '$DOLT_PUBKEY', NOW(), NOW(), '$INVITE_CREATOR_ESC', JSON_OBJECT('github', '$OWNER_GITHUB_ESC', 'invite_code', '$INVITE_CODE_ESC'));" 2>/dev/null
 
 dolt add . 2>/dev/null || true
 dolt commit -m "mesh: $GT_NAME joined via invite $INVITE_CODE (role: $INVITE_ROLE)" --allow-empty 2>/dev/null || true

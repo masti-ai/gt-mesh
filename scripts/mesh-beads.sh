@@ -81,6 +81,12 @@ case "$SUBCMD" in
       esac
     done
 
+    # Validate rig format if provided
+    if [ -n "$RIG_FILTER" ] && ! echo "$RIG_FILTER" | grep -qE "^[a-zA-Z0-9_-]+$"; then
+      echo "[error] Invalid rig format"
+      exit 1
+    fi
+
     _ensure_tables
 
     echo "==========================================="
@@ -93,7 +99,9 @@ case "$SUBCMD" in
       WHERE="$WHERE AND (claimed_by IS NULL OR claimed_by = '')"
     fi
     if [ -n "$RIG_FILTER" ]; then
-      WHERE="$WHERE AND rig = '$RIG_FILTER'"
+      # Escape for SQL
+      RIG_FILTER_ESC=$(echo "$RIG_FILTER" | sed "s/'/''/g")
+      WHERE="$WHERE AND rig = '$RIG_FILTER_ESC'"
     fi
 
     BEADS=$(dolt sql -q "SELECT bead_id, title, status, priority, COALESCE(rig, '-') as rig, COALESCE(claimed_by, '-') as claimed, shared_by FROM shared_beads WHERE $WHERE ORDER BY priority ASC, created_at DESC LIMIT 30;" -r csv 2>/dev/null | tail -n +2)
@@ -140,6 +148,18 @@ case "$SUBCMD" in
       exit 1
     fi
 
+    # Validate bead ID format
+    if ! echo "$BEAD_ID" | grep -qE "^[a-zA-Z0-9_-]+$"; then
+      echo "[error] Invalid bead ID format"
+      exit 1
+    fi
+
+    # Validate rig format if provided
+    if [ -n "$RIG" ] && ! echo "$RIG" | grep -qE "^[a-zA-Z0-9_-]+$"; then
+      echo "[error] Invalid rig format"
+      exit 1
+    fi
+
     # Read bead from local bd
     if ! command -v bd &>/dev/null; then
       echo "[error] bd (bead daemon) not found. Cannot read local beads."
@@ -161,17 +181,23 @@ case "$SUBCMD" in
 
     _ensure_tables
 
+    # Escape inputs for SQL (defense in depth)
+    BEAD_ID_ESC=$(echo "$BEAD_ID" | sed "s/'/''/g")
+    RIG_ESC=$(echo "$RIG" | sed "s/'/''/g")
+    TITLE_ESC=$(echo "$TITLE" | sed "s/'/''/g")
+    DESC_ESC=$(echo "$DESC" | sed "s/'/''/g")
+    STATUS_ESC=$(echo "$STATUS" | sed "s/'/''/g")
+    ISSUE_TYPE_ESC=$(echo "$ISSUE_TYPE" | sed "s/'/''/g")
+    LABELS_ESC=$(echo "$LABELS" | sed "s/'/''/g")
+
     # Check if already shared
-    EXISTING=$(dolt sql -q "SELECT bead_id FROM shared_beads WHERE bead_id = '$BEAD_ID';" -r csv 2>/dev/null | tail -n +2 | head -1)
+    EXISTING=$(dolt sql -q "SELECT bead_id FROM shared_beads WHERE bead_id = '$BEAD_ID_ESC';" -r csv 2>/dev/null | tail -n +2 | head -1)
     if [ -n "$EXISTING" ]; then
       echo "[warn] Bead '$BEAD_ID' is already shared on the mesh"
       echo "       Updating..."
-      dolt sql -q "UPDATE shared_beads SET title = '$(echo "$TITLE" | sed "s/'/''/g")', description = '$(echo "$DESC" | sed "s/'/''/g")', status = '$STATUS', priority = $PRIORITY, updated_at = NOW() WHERE bead_id = '$BEAD_ID';" 2>/dev/null
+      dolt sql -q "UPDATE shared_beads SET title = '$TITLE_ESC', description = '$DESC_ESC', status = '$STATUS_ESC', priority = $PRIORITY, updated_at = NOW() WHERE bead_id = '$BEAD_ID_ESC';" 2>/dev/null
     else
-      # Escape single quotes in title/desc for SQL
-      TITLE_ESC=$(echo "$TITLE" | sed "s/'/''/g")
-      DESC_ESC=$(echo "$DESC" | sed "s/'/''/g")
-      dolt sql -q "INSERT INTO shared_beads (bead_id, title, description, status, priority, issue_type, rig, shared_by, created_at, updated_at, labels) VALUES ('$BEAD_ID', '$TITLE_ESC', '$DESC_ESC', '$STATUS', $PRIORITY, '$ISSUE_TYPE', '$RIG', '$GT_ID', NOW(), NOW(), '$LABELS');" 2>/dev/null
+      dolt sql -q "INSERT INTO shared_beads (bead_id, title, description, status, priority, issue_type, rig, shared_by, created_at, updated_at, labels) VALUES ('$BEAD_ID_ESC', '$TITLE_ESC', '$DESC_ESC', '$STATUS_ESC', $PRIORITY, '$ISSUE_TYPE_ESC', '$RIG_ESC', '$GT_ID', NOW(), NOW(), '$LABELS_ESC');" 2>/dev/null
     fi
 
     dolt add . 2>/dev/null || true
@@ -188,17 +214,26 @@ case "$SUBCMD" in
       exit 1
     fi
 
+    # Validate bead ID format
+    if ! echo "$BEAD_ID" | grep -qE "^[a-zA-Z0-9_-]+$"; then
+      echo "[error] Invalid bead ID format"
+      exit 1
+    fi
+
     _ensure_tables
 
+    # Escape for SQL
+    BEAD_ID_ESC=$(echo "$BEAD_ID" | sed "s/'/''/g")
+
     # Check bead exists
-    BEAD_STATUS=$(dolt sql -q "SELECT status FROM shared_beads WHERE bead_id = '$BEAD_ID';" -r csv 2>/dev/null | tail -n +2 | head -1)
+    BEAD_STATUS=$(dolt sql -q "SELECT status FROM shared_beads WHERE bead_id = '$BEAD_ID_ESC';" -r csv 2>/dev/null | tail -n +2 | head -1)
     if [ -z "$BEAD_STATUS" ]; then
       echo "[error] Bead '$BEAD_ID' not found on mesh"
       exit 1
     fi
 
     # Check not already claimed
-    CURRENT_CLAIM=$(dolt sql -q "SELECT claimed_by FROM shared_beads WHERE bead_id = '$BEAD_ID';" -r csv 2>/dev/null | tail -n +2 | head -1)
+    CURRENT_CLAIM=$(dolt sql -q "SELECT claimed_by FROM shared_beads WHERE bead_id = '$BEAD_ID_ESC';" -r csv 2>/dev/null | tail -n +2 | head -1)
     if [ -n "$CURRENT_CLAIM" ] && [ "$CURRENT_CLAIM" != "NULL" ] && [ "$CURRENT_CLAIM" != "" ]; then
       echo "[error] Bead '$BEAD_ID' already claimed by $CURRENT_CLAIM"
       exit 1
@@ -211,8 +246,8 @@ case "$SUBCMD" in
 
     # Claim it
     CLAIM_ID="claim-$(date +%s)-$(head -c 4 /dev/urandom | od -An -tx4 | tr -d ' ')"
-    dolt sql -q "UPDATE shared_beads SET claimed_by = '$GT_ID', claimed_at = NOW(), status = 'in-progress', updated_at = NOW() WHERE bead_id = '$BEAD_ID';" 2>/dev/null
-    dolt sql -q "INSERT INTO claims (id, bead_id, gt_id, status, claimed_at) VALUES ('$CLAIM_ID', '$BEAD_ID', '$GT_ID', 'active', NOW());" 2>/dev/null
+    dolt sql -q "UPDATE shared_beads SET claimed_by = '$GT_ID', claimed_at = NOW(), status = 'in-progress', updated_at = NOW() WHERE bead_id = '$BEAD_ID_ESC';" 2>/dev/null
+    dolt sql -q "INSERT INTO claims (id, bead_id, gt_id, status, claimed_at) VALUES ('$CLAIM_ID', '$BEAD_ID_ESC', '$GT_ID', 'active', NOW());" 2>/dev/null
 
     dolt add . 2>/dev/null || true
     dolt commit -m "mesh: $GT_ID claimed bead $BEAD_ID" --allow-empty 2>/dev/null || true
@@ -228,17 +263,26 @@ case "$SUBCMD" in
       exit 1
     fi
 
+    # Validate bead ID format
+    if ! echo "$BEAD_ID" | grep -qE "^[a-zA-Z0-9_-]+$"; then
+      echo "[error] Invalid bead ID format"
+      exit 1
+    fi
+
     _ensure_tables
 
+    # Escape for SQL
+    BEAD_ID_ESC=$(echo "$BEAD_ID" | sed "s/'/''/g")
+
     # Verify this GT owns the claim
-    CURRENT_CLAIM=$(dolt sql -q "SELECT claimed_by FROM shared_beads WHERE bead_id = '$BEAD_ID';" -r csv 2>/dev/null | tail -n +2 | head -1)
+    CURRENT_CLAIM=$(dolt sql -q "SELECT claimed_by FROM shared_beads WHERE bead_id = '$BEAD_ID_ESC';" -r csv 2>/dev/null | tail -n +2 | head -1)
     if [ "$CURRENT_CLAIM" != "$GT_ID" ]; then
       echo "[error] Bead '$BEAD_ID' is not claimed by you (claimed by: ${CURRENT_CLAIM:-nobody})"
       exit 1
     fi
 
-    dolt sql -q "UPDATE shared_beads SET claimed_by = NULL, claimed_at = NULL, status = 'open', updated_at = NOW() WHERE bead_id = '$BEAD_ID';" 2>/dev/null
-    dolt sql -q "UPDATE claims SET status = 'released', released_at = NOW() WHERE bead_id = '$BEAD_ID' AND gt_id = '$GT_ID' AND status = 'active';" 2>/dev/null
+    dolt sql -q "UPDATE shared_beads SET claimed_by = NULL, claimed_at = NULL, status = 'open', updated_at = NOW() WHERE bead_id = '$BEAD_ID_ESC';" 2>/dev/null
+    dolt sql -q "UPDATE claims SET status = 'released', released_at = NOW() WHERE bead_id = '$BEAD_ID_ESC' AND gt_id = '$GT_ID' AND status = 'active';" 2>/dev/null
 
     dolt add . 2>/dev/null || true
     dolt commit -m "mesh: $GT_ID released bead $BEAD_ID" --allow-empty 2>/dev/null || true
@@ -255,9 +299,25 @@ case "$SUBCMD" in
       exit 1
     fi
 
+    # Validate bead ID format
+    if ! echo "$BEAD_ID" | grep -qE "^[a-zA-Z0-9_-]+$"; then
+      echo "[error] Invalid bead ID format"
+      exit 1
+    fi
+
+    # Validate status value
+    case "$NEW_STATUS" in
+      open|in-progress|done|closed) ;;
+      *) echo "[error] Invalid status. Use: open, in-progress, done, or closed"; exit 1 ;;
+    esac
+
     _ensure_tables
 
-    dolt sql -q "UPDATE shared_beads SET status = '$NEW_STATUS', updated_at = NOW() WHERE bead_id = '$BEAD_ID';" 2>/dev/null
+    # Escape for SQL
+    BEAD_ID_ESC=$(echo "$BEAD_ID" | sed "s/'/''/g")
+    NEW_STATUS_ESC=$(echo "$NEW_STATUS" | sed "s/'/''/g")
+
+    dolt sql -q "UPDATE shared_beads SET status = '$NEW_STATUS_ESC', updated_at = NOW() WHERE bead_id = '$BEAD_ID_ESC';" 2>/dev/null
 
     dolt add . 2>/dev/null || true
     dolt commit -m "mesh: $GT_ID set $BEAD_ID status to $NEW_STATUS" --allow-empty 2>/dev/null || true

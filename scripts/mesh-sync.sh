@@ -77,13 +77,16 @@ if [ "${NEW_KNOWLEDGE:-0}" -gt 0 ] 2>/dev/null; then
   ENTRIES=$(dolt sql -q "SELECT CONCAT(title, '|||', content) FROM mesh_knowledge_entries WHERE updated_at > '${LAST_KNOWLEDGE_SYNC:-1970-01-01}' ORDER BY created_at;" -r csv 2>/dev/null | tail -n +2 | sed 's/^"//;s/"$//' | sed 's/""/"/g')
   while IFS='|||' read -r ktitle kcontent; do
     [ -z "$ktitle" ] && continue
-    # Skip if already in file
-    if [ -f "$LEARNINGS" ] && grep -qF "$ktitle" "$LEARNINGS" 2>/dev/null; then
+    # Skip if already in file (sanitize title for grep)
+    ktitle_esc=$(printf '%s' "$ktitle" | sed 's/[[\.*^$/&]/\\&/g')
+    if [ -f "$LEARNINGS" ] && grep -qF "$ktitle_esc" "$LEARNINGS" 2>/dev/null; then
       continue
     fi
+    # Write content safely - escape any markdown special chars in title
     echo "" >> "$LEARNINGS"
-    echo "### $ktitle" >> "$LEARNINGS"
-    echo "$kcontent" | sed 's/\\n/\n/g' >> "$LEARNINGS"
+    echo "### $(printf '%s' "$ktitle" | sed 's/^#//g')" >> "$LEARNINGS"
+    # Content: replace literal \n with newlines, but sanitize for shell safety
+    printf '%s' "$kcontent" | sed 's/\\n/\n/g' | sed 's/^[ \t]*//;s/[ \t]*$//' >> "$LEARNINGS"
     echo "" >> "$LEARNINGS"
   done <<< "$ENTRIES"
   date -u +%Y-%m-%dT%H:%M:%SZ > "$KNOWLEDGE_DIR/.last-sync"

@@ -79,13 +79,31 @@ case "$SUBCMD" in
       echo "Usage: gt mesh rules set <rule_name> <value>"
       exit 1
     fi
+
+    # Validate RULE_NAME format (alphanumeric, underscore, dash only)
+    if ! echo "$RULE_NAME" | grep -qE "^[a-zA-Z_][a-zA-Z0-9_]*$"; then
+      echo "[error] Invalid rule name. Use alphanumeric and underscores only."
+      exit 1
+    fi
+
+    # Validate RULE_VALUE is safe (no newlines or dangerous chars)
+    if echo "$RULE_VALUE" | grep -qE "[\n\r\0]"; then
+      echo "[error] Rule value contains invalid characters."
+      exit 1
+    fi
+
     _ensure_table
+
+    # Escape for SQL (defense in depth)
+    RULE_NAME_ESC=$(echo "$RULE_NAME" | sed "s/'/''/g")
+    RULE_VALUE_ESC=$(echo "$RULE_VALUE" | sed "s/'/''/g")
+
     # Preserve category if rule exists, default to 'custom'
-    EXISTING_CAT=$(dolt sql -q "SELECT category FROM mesh_rules WHERE rule_name = '$RULE_NAME';" -r csv 2>/dev/null | tail -n +2 | head -1)
+    EXISTING_CAT=$(dolt sql -q "SELECT category FROM mesh_rules WHERE rule_name = '$RULE_NAME_ESC';" -r csv 2>/dev/null | tail -n +2 | head -1)
     CATEGORY="${EXISTING_CAT:-custom}"
-    dolt sql -q "REPLACE INTO mesh_rules (rule_name, rule_value, category, set_by, updated_at) VALUES ('$RULE_NAME', '$RULE_VALUE', '$CATEGORY', '$GT_ID', NOW());" 2>/dev/null
+    dolt sql -q "REPLACE INTO mesh_rules (rule_name, rule_value, category, set_by, updated_at) VALUES ('$RULE_NAME_ESC', '$RULE_VALUE_ESC', '$CATEGORY', '$GT_ID', NOW());" 2>/dev/null
     dolt add . 2>/dev/null || true
-    dolt commit -m "mesh: $GT_ID set rule $RULE_NAME = $RULE_VALUE" --allow-empty 2>/dev/null || true
+    dolt commit -m "mesh: $GT_ID set rule $RULE_NAME_ESC = $RULE_VALUE_ESC" --allow-empty 2>/dev/null || true
     dolt push 2>/dev/null || true
     cd "$GT_ROOT"
     echo "Rule set: $RULE_NAME = $RULE_VALUE"
