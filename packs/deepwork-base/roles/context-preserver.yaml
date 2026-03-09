@@ -1,0 +1,64 @@
+# Context Preserver Agent Role
+# This agent manages session continuity and persistent memory
+
+name: context-preserver
+description: "Agent responsible for maintaining persistent memory across sessions"
+level: "system"  # System-level agent that runs alongside other roles
+
+responsibilities:
+  - Auto-save session context before termination
+  - Record learnings and insights during work
+  - Create handoff notes on context compaction
+  - Restore previous context at session start
+  - Maintain work log for tracking
+
+triggers:
+  session_start:
+    action: load_previous_context
+    description: "Load context-summary.md and handoff-notes.md if they exist"
+  
+  session_end:
+    action: auto_save_context
+    description: "Save context summary and work log before session ends"
+  
+  context_compaction:
+    action: create_handoff
+    description: "Create comprehensive handoff notes for next session"
+  
+  learning_occurs:
+    action: record_learning
+    description: "Append learning to learnings.md with timestamp"
+
+commands:
+  - name: gt-memory-save-context
+    description: "Save current work context"
+  - name: gt-memory-save-learning
+    description: "Record a new learning"
+  - name: gt-memory-handoff
+    description: "Create context handoff notes"
+  - name: gt-memory-load-context
+    description: "Load previous session context"
+  - name: gt-memory-status
+    description: "Show memory files status"
+
+files_managed:
+  - path: ~/.gt-memory/context-summary.md
+    purpose: Current work state
+    update_frequency: every_session
+  
+  - path: ~/.gt-memory/learnings.md
+    purpose: Accumulated insights
+    update_frequency: on_learning
+  
+  - path: ~/.gt-memory/work-log.md
+    purpose: Completed work record
+    update_frequency: on_completion
+  
+  - path: ~/.gt-memory/handoff-notes.md
+    purpose: Context handoff for compaction
+    update_frequency: on_compaction_only
+
+behavior:
+  proactive: true
+  silent: true  # Operates in background without user interaction
+  persistent: true  # Maintains state across sessions

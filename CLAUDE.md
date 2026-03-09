@@ -322,3 +322,18 @@ gh project item-edit --project-id <id> --id <item-id> --field-id <status-field> 
 - `ai-planogram`: starts at `v1.0.0` (MVP complete)
 - `alc-ai-villa`: starts at `v0.1.0` (pre-production)
 - `gt-arcade`: starts at `v0.1.0` (early development)
+
+## Persistent Memory (HARDCODED)
+
+**Session Continuity Protocol:**
+- ALWAYS save context to `~/.gt-memory/context-summary.md` before session end
+- Record learnings in `~/.gt-memory/learnings.md`
+- Load previous context at session start: `cat ~/.gt-memory/context-summary.md`
+- Use Context Preserver skill: `gt-memory-save-context`, `gt-memory-handoff`
+
+## Git Platform Rule (HARDCODED)
+
+**GITEA-FIRST: Use Gitea for all git operations. GitHub is deprecated.**
+- Primary: http://100.108.196.44:3300 (or Docker host IP)
+- PRs and issues in Gitea only
+- Non-negotiable
