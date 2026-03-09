@@ -1,0 +1,203 @@
+# Beads Workflow Formula
+#
+# Beads pipeline from reviewed plan to verified beads hierarchy in 2 steps:
+#   Step 1: Beads creation (plan → beads epic with dependency graph)
+#   Step 2: Beads review to plan (3-agent bidirectional review)
+#
+# Uses expansion composition to inline all workflow steps.
+#
+# Usage:
+#   gt sling beads-workflow <crew> \
+#     --var feature="command-palette"
+
+description = """
+Beads workflow from reviewed plan to verified beads hierarchy.
+
+Orchestrates 2 steps:
+1. **Beads Creation** - Plan → beads epic with tasks and dependencies
+2. **Beads Review to Plan** - 3-agent bidirectional review (beads↔plan alignment)
+
+Step 1 is interactive (user dialogue for granularity decisions). Step 2
+auto-applies restorative fixes and only escalates genuine ambiguities.
+
+**Requires:** Reviewed plan at plans/{{feature}}/03-plan/plan.md
+**Output:** Verified beads hierarchy ready for implementation
+
+## Step Lifecycle (Molecule Work Loop)
+
+This formula runs as a molecule — each step is a wisp bead. Use the
+standard molecule work loop to advance through steps:
+
+```bash
+# 1. Find your current step:
+bd mol current <molecule-id>
+
+# 2. Execute the step (follow its instructions)
+
+# 3. Close the step when done:
+bd close <step-id>
+
+# 4. Find the next step:
+bd mol current <molecule-id>
+
+# 5. Repeat until molecule complete
+```
+
+`bd mol current` returns the next ready step (open + all blocking deps
+closed). Closing a step unblocks the next one in the dependency chain.
+
+**Crash recovery:** Each `bd close` is durable. If your session crashes,
+the next session runs `gt prime` which detects the molecule on your hook
+and shows progress. `bd mol current` picks up at the next unclosed step.
+
+Do NOT batch-close all steps at the end — close each one as you finish it.
+"""
+formula = "beads-workflow"
+type = "workflow"
+version = 2
+
+[vars]
+[vars.feature]
+description = "Feature name (used for all input/output paths)"
+required = true
+
+# ============================================================================
+# KICKOFF: Workflow banner
+# ============================================================================
+
+[[steps]]
+id = "kickoff"
+title = "Beads Workflow Kickoff"
+description = """
+═══════════════════════════════════════════════════════════════
+ BEADS WORKFLOW
+ From reviewed plan to verified beads issue hierarchy.
+
+ Steps:
+  1. Beads Creation — plan to beads epic with dependency graph
+  2. Beads Review — three agents verify beads-to-plan alignment
+
+ Input:  Reviewed plan at plans/{feature}/03-plan/plan.md
+ Output: Verified beads hierarchy ready for implementation
+═══════════════════════════════════════════════════════════════
+
+Output this banner to the user, then close this step to begin.
+"""
+
+# ============================================================================
+# STEP 1: BEADS CREATION (expanded from beads-creation-expansion)
+# ============================================================================
+
+[[steps]]
+id = "step-1-beads-creation"
+needs = ["kickoff"]
+title = "Step 1: Beads Creation"
+description = """
+Convert the reviewed plan into a beads epic with tasks and dependencies.
+
+This step is expanded into the full beads-creation workflow:
+1. Load plan and extract phases/tasks
+2. Draft beads structure (epics, tasks, dependencies)
+3. Interactive review with user for granularity/scope decisions
+4. Create beads via bd commands
+5. Verify dependency graph integrity
+6. Commit summary
+
+**Interactive:** Involves dialogue for granularity decisions.
+
+**Outputs:**
+- Beads epic with phase sub-epics and task issues
+- Dependency graph matching plan phasing
+- plans/{{feature}}/04-beads/ directory
+"""
+
+# ============================================================================
+# CHECKPOINT: After Beads Creation → before Beads Review
+# ============================================================================
+
+[[steps]]
+id = "checkpoint-after-beads-creation"
+title = "Context Checkpoint"
+needs = ["step-1-beads-creation"]
+description = """
+## Context Checkpoint
+
+Beads creation (Stage 1) is complete. Key artifacts produced:
+- Beads epic with phase sub-epics and task issues
+- Dependency graph matching plan phasing
+- plans/{{feature}}/04-beads/ directory
+
+**If this is your first step in a fresh session**, close this step and continue.
+
+**Otherwise**, cycle your context for the next phase:
+
+1. Close this step: `bd close <step-id>`
+2. Handoff: `gt handoff -s "Beads workflow: beads creation complete" -m "Beads hierarchy created from plan — feature epic, phase sub-epics, and task issues with dependency graph. Next: 3-agent bidirectional beads review checking beads↔plan alignment."`
+
+The next session picks up automatically at Beads Review (Stage 2).
+"""
+
+# ============================================================================
+# STEP 2: BEADS REVIEW TO PLAN (expanded from beads-review-to-plan-expansion)
+# ============================================================================
+
+[[steps]]
+id = "step-2-beads-review"
+title = "Step 2: Beads Review to Plan"
+needs = ["checkpoint-after-beads-creation"]
+description = """
+3-agent bidirectional review checking beads↔plan alignment.
+
+This step is expanded into the full review workflow:
+1. Validate inputs and snapshot beads state
+2. Dispatch 3 parallel Sonnet agents:
+   - Forward: plan → beads coverage (every plan task has a matching bead)
+   - Reverse: beads → plan traceability (every bead traces to the plan)
+   - Dependencies: graph integrity matches plan phasing
+3. Consolidate findings with cross-referencing
+4. Auto-apply restorative fixes, escalate ambiguities
+5. Commit review report
+
+**Outputs:**
+- plans/{{feature}}/04-beads/beads-review.md
+- Updated beads (dependencies, acceptance criteria, content)
+"""
+
+# ============================================================================
+# COMPLETE: Summary
+# ============================================================================
+
+[[steps]]
+id = "complete"
+title = "Workflow Complete"
+needs = ["step-2-beads-review"]
+description = """
+Beads workflow is complete.
+
+**Summary:**
+- Step 1: Beads hierarchy created (feature epic, phase sub-epics, task issues)
+- Step 2: Beads reviewed against plan (3-agent bidirectional coverage check)
+
+**Final outputs:**
+- Verified beads hierarchy with validated dependency graph
+- plans/{{feature}}/04-beads/beads-draft.md (draft structure)
+- plans/{{feature}}/04-beads/beads-report.md (creation report)
+- plans/{{feature}}/04-beads/beads-review.md (review findings)
+
+**Next steps:**
+- Run epic-delivery to dispatch the beads to polecats for implementation
+"""
+
+# ============================================================================
+# COMPOSITION: Expand placeholder steps with expansion formulas
+# ============================================================================
+
+[compose]
+
+[[compose.expand]]
+target = "step-1-beads-creation"
+with = "beads-creation-expansion"
+
+[[compose.expand]]
+target = "step-2-beads-review"
+with = "beads-review-to-plan-expansion"

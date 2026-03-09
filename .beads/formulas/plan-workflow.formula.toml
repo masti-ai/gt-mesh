@@ -1,0 +1,200 @@
+# Plan Workflow Formula
+#
+# Plan pipeline from spec to reviewed implementation plan in 2 steps:
+#   Step 1: Plan writing (spec → implementation plan)
+#   Step 2: Plan review to spec (3-agent bidirectional review)
+#
+# Uses expansion composition to inline all workflow steps.
+#
+# Usage:
+#   gt sling plan-workflow <crew> \
+#     --var feature="command-palette"
+
+description = """
+Plan workflow from spec to reviewed implementation plan.
+
+Orchestrates 2 steps:
+1. **Plan Writing** - Spec → phased implementation plan with dependency graph
+2. **Plan Review to Spec** - 3-agent bidirectional review (plan↔spec alignment)
+
+Step 1 is interactive (user dialogue for architectural decisions). Step 2
+auto-applies restorative fixes and only escalates genuine ambiguities.
+
+**Requires:** Completed spec at plans/{{feature}}/02-spec/spec.md
+**Output:** Reviewed plan at plans/{{feature}}/03-plan/plan.md
+
+## Step Lifecycle (Molecule Work Loop)
+
+This formula runs as a molecule — each step is a wisp bead. Use the
+standard molecule work loop to advance through steps:
+
+```bash
+# 1. Find your current step:
+bd mol current <molecule-id>
+
+# 2. Execute the step (follow its instructions)
+
+# 3. Close the step when done:
+bd close <step-id>
+
+# 4. Find the next step:
+bd mol current <molecule-id>
+
+# 5. Repeat until molecule complete
+```
+
+`bd mol current` returns the next ready step (open + all blocking deps
+closed). Closing a step unblocks the next one in the dependency chain.
+
+**Crash recovery:** Each `bd close` is durable. If your session crashes,
+the next session runs `gt prime` which detects the molecule on your hook
+and shows progress. `bd mol current` picks up at the next unclosed step.
+
+Do NOT batch-close all steps at the end — close each one as you finish it.
+"""
+formula = "plan-workflow"
+type = "workflow"
+version = 3
+
+[vars]
+[vars.feature]
+description = "Feature name (used for all input/output paths)"
+required = true
+
+# ============================================================================
+# KICKOFF: Workflow banner
+# ============================================================================
+
+[[steps]]
+id = "kickoff"
+title = "Plan Workflow Kickoff"
+description = """
+═══════════════════════════════════════════════════════════════
+ PLAN WORKFLOW
+ From reviewed spec to reviewed implementation plan.
+
+ Steps:
+  1. Plan Writing — deep codebase analysis, phased delivery plan
+  2. Plan Review — three agents verify plan-to-spec alignment
+
+ Input:  Reviewed spec at plans/{feature}/02-spec/spec.md
+ Output: Reviewed plan at plans/{feature}/03-plan/plan.md
+═══════════════════════════════════════════════════════════════
+
+Output this banner to the user, then close this step to begin.
+"""
+
+# ============================================================================
+# STEP 1: PLAN WRITING (expanded from plan-writing-expansion)
+# ============================================================================
+
+[[steps]]
+id = "step-1-plan-writing"
+needs = ["kickoff"]
+title = "Step 1: Plan Writing"
+description = """
+Transform the reviewed spec into a phased implementation plan.
+
+This step is expanded into the full plan-writing workflow:
+1. Load spec and codebase context
+2. Draft plan with phases, tasks, dependencies, and file paths
+3. Interactive review with user for scope/approach decisions
+4. Finalize and commit plan
+
+**Interactive:** Involves dialogue for architectural decisions.
+
+**Requires:** plans/{{feature}}/02-spec/spec.md (from spec-workflow)
+
+**Outputs:**
+- plans/{{feature}}/03-plan/plan.md
+"""
+
+# ============================================================================
+# CHECKPOINT: After Plan Writing → before Plan Review
+# ============================================================================
+
+[[steps]]
+id = "checkpoint-after-plan-writing"
+title = "Context Checkpoint"
+needs = ["step-1-plan-writing"]
+description = """
+## Context Checkpoint
+
+Plan writing (Stage 1) is complete. Key artifacts produced:
+- plans/{{feature}}/03-plan/plan.md (phased implementation plan)
+- plans/{{feature}}/03-plan/plan-context.md (codebase analysis)
+
+**If this is your first step in a fresh session**, close this step and continue.
+
+**Otherwise**, cycle your context for the next phase:
+
+1. Close this step: `bd close <step-id>`
+2. Handoff: `gt handoff -s "Plan workflow: plan writing complete" -m "Implementation plan written at plans/{{feature}}/03-plan/plan.md with phases, tasks, dependencies, and file paths. Next: 3-agent bidirectional plan review checking plan↔spec alignment."`
+
+The next session picks up automatically at Plan Review (Stage 2).
+"""
+
+# ============================================================================
+# STEP 2: PLAN REVIEW TO SPEC (expanded from plan-review-to-spec-expansion)
+# ============================================================================
+
+[[steps]]
+id = "step-2-plan-review"
+title = "Step 2: Plan Review to Spec"
+needs = ["checkpoint-after-plan-writing"]
+description = """
+3-agent bidirectional review checking plan↔spec alignment.
+
+This step is expanded into the full review workflow:
+1. Validate inputs (plan and spec exist)
+2. Dispatch 3 parallel Sonnet agents:
+   - Forward: spec → plan coverage (every spec requirement has a plan task)
+   - Reverse: plan → spec traceability (every plan task traces to the spec)
+   - Context: plan aligns with codebase reality
+3. Consolidate findings with cross-referencing
+4. Auto-apply restorative fixes, escalate ambiguities
+5. Commit review report
+
+**Outputs:**
+- plans/{{feature}}/03-plan/plan-review.md
+- Updated plans/{{feature}}/03-plan/plan.md (if fixes applied)
+"""
+
+# ============================================================================
+# COMPLETE: Summary
+# ============================================================================
+
+[[steps]]
+id = "complete"
+title = "Workflow Complete"
+needs = ["step-2-plan-review"]
+description = """
+Plan workflow is complete.
+
+**Summary:**
+- Step 1: Implementation plan written (phases, tasks, dependencies, file paths)
+- Step 2: Plan reviewed against spec (3-agent bidirectional coverage check)
+
+**Final outputs:**
+- plans/{{feature}}/03-plan/plan.md (reviewed implementation plan)
+- plans/{{feature}}/03-plan/plan-review.md (review findings)
+- plans/{{feature}}/03-plan/plan-context.md (codebase analysis)
+
+**Next steps:**
+- Run beads-workflow to convert the plan into a verified beads issue hierarchy
+- Run epic-delivery to dispatch the beads to polecats for implementation
+"""
+
+# ============================================================================
+# COMPOSITION: Expand placeholder steps with expansion formulas
+# ============================================================================
+
+[compose]
+
+[[compose.expand]]
+target = "step-1-plan-writing"
+with = "plan-writing-expansion"
+
+[[compose.expand]]
+target = "step-2-plan-review"
+with = "plan-review-to-spec-expansion"
