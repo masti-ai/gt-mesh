@@ -12,6 +12,7 @@ skills:
   - skills/gt-mesh-setup/SKILL.md
   - skills/gt-mesh/SKILL.md
   - skills/gt-mesh-contributor/SKILL.md
+  - skills/context-preserver/SKILL.md
 
 roles:
   - roles/planner.yaml
