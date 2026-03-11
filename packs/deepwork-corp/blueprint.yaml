@@ -1,0 +1,404 @@
+# Deepwork Corporation — Organization Blueprint
+# Org-as-code template for the Deepwork-AI mesh
+# Bead: hq-jhx41
+
+blueprint:
+  name: "deepwork-corp"
+  version: "1.0.0"
+  description: "Deepwork Corporation organization structure — departments, roles, nodes, and routing rules"
+  author: "deepwork-hq"
+  created_at: "2026-03-10"
+  
+  # ============================================================================
+  # ORGANIZATION STRUCTURE
+  # ============================================================================
+  organization:
+    name: "Deepwork Corporation"
+    type: "corporation"
+    
+    departments:
+      - id: "eng"
+        name: "Engineering"
+        description: "Software development, architecture, and technical infrastructure"
+        head_count: 3
+        
+      - id: "product"
+        name: "Product"
+        description: "Product management, roadmap planning, and feature prioritization"
+        head_count: 1
+        
+      - id: "qa"
+        name: "Quality Assurance"
+        description: "Testing, quality control, and release validation"
+        head_count: 1
+        
+      - id: "content"
+        name: "Content"
+        description: "Technical writing, documentation, and content creation"
+        head_count: 1
+        
+      - id: "business"
+        name: "Business"
+        description: "Business analysis, market research, and strategy"
+        head_count: 1
+        
+      - id: "release-ops"
+        name: "Release & Operations"
+        description: "DevOps, deployment, release management, and infrastructure"
+        head_count: 1
+
+  # ============================================================================
+  # ROLE MAPPINGS
+  # ============================================================================
+  roles:
+    # Crew (Claude) — Senior leadership and strategic roles
+    crew:
+      - id: "ceo"
+        title: "Chief Executive Officer"
+        department: "executive"
+        level: "c-suite"
+        responsibilities:
+          - "Strategic direction and vision"
+          - "Cross-department coordination"
+          - "Final decision authority"
+          - "External representation"
+        
+      - id: "vp-eng"
+        title: "VP of Engineering"
+        department: "eng"
+        level: "executive"
+        responsibilities:
+          - "Engineering strategy and architecture"
+          - "Technical leadership"
+          - "Code review oversight"
+          - "Mentorship and growth"
+        
+      - id: "pm"
+        title: "Product Manager"
+        department: "product"
+        level: "lead"
+        responsibilities:
+          - "Product roadmap"
+          - "Feature prioritization"
+          - "Stakeholder communication"
+          - "Requirements gathering"
+        
+      - id: "qa-lead"
+        title: "QA Lead"
+        department: "qa"
+        level: "lead"
+        responsibilities:
+          - "Quality standards"
+          - "Test strategy"
+          - "Release sign-off"
+          - "QA process improvement"
+        
+      - id: "content-lead"
+        title: "Content Lead"
+        department: "content"
+        level: "lead"
+        responsibilities:
+          - "Content strategy"
+          - "Documentation standards"
+          - "Editorial oversight"
+          - "Brand voice consistency"
+        
+      - id: "biz-lead"
+        title: "Business Lead"
+        department: "business"
+        level: "lead"
+        responsibilities:
+          - "Market analysis"
+          - "Competitive research"
+          - "Business strategy"
+          - "Partnership evaluation"
+        
+      - id: "release-mgr"
+        title: "Release Manager"
+        department: "release-ops"
+        level: "lead"
+        responsibilities:
+          - "Release planning"
+          - "Deployment coordination"
+          - "Rollback procedures"
+          - "Release documentation"
+
+    # Polecat (MiniMax/Kimi) — Execution and implementation roles
+    polecat:
+      - id: "senior-dev"
+        title: "Senior Developer"
+        department: "eng"
+        level: "senior"
+        responsibilities:
+          - "Complex feature implementation"
+          - "Architecture decisions"
+          - "Code review"
+          - "Mentorship"
+        skills_required:
+          - "typescript"
+          - "python"
+          - "system-design"
+          - "code-review"
+        
+      - id: "junior-dev"
+        title: "Junior Developer"
+        department: "eng"
+        level: "junior"
+        responsibilities:
+          - "Feature implementation"
+          - "Bug fixes"
+          - "Testing"
+          - "Documentation"
+        skills_required:
+          - "typescript"
+          - "react"
+          - "ui-ux"
+          - "content"
+        
+      - id: "qa-engineer"
+        title: "QA Engineer"
+        department: "qa"
+        level: "mid"
+        responsibilities:
+          - "Test case creation"
+          - "Automated testing"
+          - "Bug verification"
+          - "Quality reporting"
+        skills_required:
+          - "testing"
+          - "automation"
+          - "bug-tracking"
+        
+      - id: "content-writer"
+        title: "Content Writer"
+        department: "content"
+        level: "mid"
+        responsibilities:
+          - "Documentation"
+          - "Blog posts"
+          - "Technical writing"
+          - "Social media content"
+        skills_required:
+          - "writing"
+          - "technical-writing"
+          - "content-strategy"
+        
+      - id: "analyst"
+        title: "Analyst"
+        department: "business"
+        level: "mid"
+        responsibilities:
+          - "Data analysis"
+          - "Market research"
+          - "Reporting"
+          - "Metrics tracking"
+        skills_required:
+          - "data-analysis"
+          - "research"
+          - "reporting"
+
+  # ============================================================================
+  # MESH NODE HIERARCHY
+  # ============================================================================
+  mesh:
+    # Three-node hierarchy for initial deployment
+    nodes:
+      - id: "deepwork-hq"
+        name: "Deepwork HQ"
+        role: "crew"
+        role_id: "ceo"
+        llm: "claude-opus"
+        host: "host"
+        container: "hq"
+        department: "executive"
+        authority: "highest"
+        responsibilities:
+          - "Strategic decisions"
+          - "Cross-node coordination"
+          - "Final PR approval"
+          - "Bead assignment"
+        
+      - id: "deepwork-eng-1"
+        name: "Deepwork Engineering 1"
+        role: "polecat"
+        role_id: "senior-dev"
+        llm: "minimax-m2.5"
+        host: "gasclaw-2"
+        container: "gasclaw-2"
+        department: "eng"
+        authority: "senior"
+        reports_to: "deepwork-hq"
+        responsibilities:
+          - "Complex development tasks"
+          - "Architecture implementation"
+          - "Code review (senior level)"
+          - "Technical mentorship"
+        
+      - id: "deepwork-eng-2"
+        name: "Deepwork Engineering 2"
+        role: "polecat"
+        role_id: "junior-dev"
+        llm: "kimi-k2"
+        host: "gasclaw-1"
+        container: "gasclaw-1"
+        department: "eng"
+        authority: "junior"
+        reports_to: "deepwork-eng-1"
+        responsibilities:
+          - "Feature implementation"
+          - "UI/UX development"
+          - "Documentation"
+          - "Content creation"
+
+  # ============================================================================
+  # SKILL-BASED ROUTING RULES
+  # ============================================================================
+  routing:
+    # Define which node handles which type of work
+    rules:
+      # Strategic work → CEO (deepwork-hq)
+      - skill_pattern: "strategy|architecture|roadmap|planning"
+        target_node: "deepwork-hq"
+        priority: "high"
+        
+      # Complex technical work → Senior Dev (deepwork-eng-1)
+      - skill_pattern: "system-design|refactor|performance|security"
+        target_node: "deepwork-eng-1"
+        priority: "high"
+        
+      # Standard development → Junior Dev (deepwork-eng-2)
+      - skill_pattern: "typescript|react|ui|frontend|content|docs"
+        target_node: "deepwork-eng-2"
+        priority: "normal"
+        
+      # Python/backend work → Senior or Junior based on complexity
+      - skill_pattern: "python|fastapi|backend"
+        target_node: "deepwork-eng-1"
+        priority: "normal"
+        fallback_node: "deepwork-eng-2"
+        
+      # QA work → any available (expandable)
+      - skill_pattern: "test|qa|quality|bug"
+        target_node: "deepwork-eng-1"
+        priority: "normal"
+        
+      # Content work → Junior Dev (deepwork-eng-2)
+      - skill_pattern: "content|writing|blog|social"
+        target_node: "deepwork-eng-2"
+        priority: "normal"
+
+    # Default routing when no pattern matches
+    default:
+      target_node: "deepwork-eng-2"
+      escalation_node: "deepwork-eng-1"
+      max_escalation: "deepwork-hq"
+
+  # ============================================================================
+  # REVIEW POLICY
+  # ============================================================================
+  review_policy:
+    # All PRs must be reviewed by a Tech Lead
+    require_review: true
+    
+    # Reviewers by role
+    reviewers:
+      junior:
+        required: 1
+        from_roles: ["senior-dev", "vp-eng"]
+      senior:
+        required: 1
+        from_roles: ["vp-eng", "ceo"]
+      
+    # Specific rules
+    rules:
+      # Workers NEVER merge their own PRs
+      - rule: "no_self_merge"
+        description: "Workers cannot merge their own pull requests"
+        applies_to: ["polecat"]
+        enforcement: "strict"
+        
+      # Tech Lead reviews ALL PRs
+      - rule: "tech_lead_review_required"
+        description: "All PRs must be reviewed by a Tech Lead (VP Eng or Senior Dev)"
+        applies_to: ["all"]
+        enforcement: "strict"
+        
+      # CEO reviews strategic/architectural changes
+      - rule: "ceo_review_architecture"
+        description: "Architecture and strategic changes require CEO review"
+        applies_to: ["architecture", "strategy", "roadmap"]
+        enforcement: "strict"
+        
+      # Release Manager reviews all releases
+      - rule: "release_manager_approval"
+        description: "All releases require Release Manager approval"
+        applies_to: ["release"]
+        enforcement: "strict"
+
+    # Review SLAs
+    sla:
+      normal: "24h"
+      urgent: "4h"
+      critical: "1h"
+
+  # ============================================================================
+  # GOVERNANCE
+  # ============================================================================
+  governance:
+    # Branch naming convention
+    branch_format: "gt/{node-id}/{issue}-{description}"
+    
+    # PR target branch
+    pr_target: "dev"
+    
+    # Commit format
+    commit_format: "conventional"
+    
+    # Prohibited actions
+    prohibited:
+      - "force_push_to_shared"
+      - "direct_push_to_main"
+      - "direct_push_to_dev"
+      - "self_merge"
+      - "commit_secrets"
+    
+    # Security
+    security:
+      secrets_scan: true
+      no_secrets_in_repo: true
+      required_signing: false
+
+  # ============================================================================
+  # EXPANSION CAPACITY
+  # ============================================================================
+  expansion:
+    # Future node slots (for scaling)
+    planned_nodes:
+      - id: "deepwork-eng-3"
+        role: "polecat"
+        role_id: "junior-dev"
+        department: "eng"
+        
+      - id: "deepwork-qa-1"
+        role: "polecat"
+        role_id: "qa-engineer"
+        department: "qa"
+        
+      - id: "deepwork-content-1"
+        role: "polecat"
+        role_id: "content-writer"
+        department: "content"
+        
+      - id: "deepwork-biz-1"
+        role: "polecat"
+        role_id: "analyst"
+        department: "business"
+
+    # Auto-scale triggers
+    scale_triggers:
+      - metric: "queue_depth"
+        threshold: 10
+        action: "alert_hq"
+      - metric: "pr_backlog"
+        threshold: 5
+        action: "request_additional_nodes"
