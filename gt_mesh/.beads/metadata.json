@@ -1,0 +1,9 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "server",
+  "dolt_server_host": "127.0.0.1",
+  "dolt_server_port": 3307,
+  "dolt_database": "gt_mesh",
+  "project_id": "5511c920-2344-4ae4-a476-397bb5d516b0"
+}

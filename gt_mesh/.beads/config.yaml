@@ -1,0 +1,3 @@
+prefix: gtm
+issue-prefix: gtm
+sync.mode: dolt-native
