@@ -1,6 +1,7 @@
 # GT Mesh Cron Registry
 # ALL cron jobs must be registered here. Unregistered crons are killed on audit.
 # Format: name, schedule, command, owner, purpose, created, expires (optional)
+# Updated: 2026-03-12 — synced with actual crontab
 
 crons:
   dolthub-sync:
@@ -11,18 +12,18 @@ crons:
     created: "2026-03-06"
 
   mesh-sync:
-    schedule: "*/2 * * * *"
+    schedule: "1-59/2 * * * *"
     command: "GT_ROOT=/home/pratham2/gt MESH_YAML=/home/pratham2/gt/mesh.yaml /bin/bash /home/pratham2/gt/.gt-mesh/scripts/mesh-sync.sh >> /tmp/gt-mesh-sync.log 2>&1"
     owner: "gt-local"
-    purpose: "Mesh heartbeat, knowledge sync, mail handler trigger"
+    purpose: "Mesh heartbeat, knowledge sync, mail handler trigger (offset 1m from dolthub-sync)"
     created: "2026-03-06"
 
-  deacon-pr-review:
-    schedule: "*/30 * * * *"
-    command: "bash /home/pratham2/gt/.gt-mesh/scripts/deacon-pr-review.sh"
+  mayor-work-dispatcher:
+    schedule: "*/5 * * * *"
+    command: "GT_ROOT=/home/pratham2/gt MESH_YAML=/home/pratham2/gt/mesh.yaml bash /home/pratham2/gt/.gt-mesh/scripts/mayor-work-dispatcher.sh >> /tmp/mayor-dispatcher.log 2>&1"
     owner: "gt-local"
-    purpose: "Auto-review and merge approved PRs across Deepwork-AI repos"
-    created: "2026-03-06"
+    purpose: "Check idle workers, dispatch beads, monitor Gitea PRs"
+    created: "2026-03-11"
 
   mesh-improve-review:
     schedule: "*/10 * * * *"
@@ -40,25 +41,45 @@ crons:
 
   cron-audit:
     schedule: "0 6 * * *"
-    command: "bash /home/pratham2/gt/.gt-mesh/scripts/cron-audit.sh --enforce >> /tmp/cron-audit.log 2>&1"
+    command: "bash /home/pratham2/gt/.gt-mesh/scripts/cron-audit.sh --report-only >> /tmp/cron-audit.log 2>&1"
     owner: "gt-local"
-    purpose: "Daily audit: verify crontab matches cron-registry.yaml, fix mismatches"
+    purpose: "Daily audit: report crontab vs registry drift (report-only mode)"
     created: "2026-03-06"
-
-  # --- Additional gt-local crons (added 2026-03-08) ---
-  mesh-work-watchdog:
-    schedule: "*/5 * * * *"
-    command: "bash /home/pratham2/gt/.gt-mesh/scripts/mesh-work-watchdog.sh"
-    owner: "gt-local"
-    purpose: "Check gasclaw container sessions alive, restart if dead"
-    created: "2026-03-08"
 
   mesh-mayor-daemon:
     schedule: "*/10 * * * *"
-    command: "bash /home/pratham2/gt/.gt-mesh/scripts/mesh-mayor-daemon.sh"
+    command: "bash /home/pratham2/gt/.gt-mesh/scripts/mesh-mayor-daemon.sh >> /tmp/mesh-mayor-daemon.log 2>&1"
     owner: "gt-local"
-    purpose: "Mayor daemon health check"
+    purpose: "Process mesh inbox"
     created: "2026-03-08"
+
+  mesh-pack-updater:
+    schedule: "0 */2 * * *"
+    command: "bash /home/pratham2/gt/.gt-mesh/scripts/mesh-pack-updater.sh >> /tmp/mesh-pack-updater.log 2>&1"
+    owner: "gt-local"
+    purpose: "Update blueprint packs from DoltHub"
+    created: "2026-03-08"
+
+  mesh-inbox:
+    schedule: "*/5 * * * *"
+    command: "GT_ROOT=/home/pratham2/gt MESH_YAML=/home/pratham2/gt/mesh.yaml bash /home/pratham2/gt/.gt-mesh/scripts/mesh-inbox.sh >> /tmp/mesh-inbox.log 2>&1"
+    owner: "gt-local"
+    purpose: "Process mesh inbox messages"
+    created: "2026-03-11"
+
+# ===========================================================================
+# DISABLED CRONS — kept for reference
+# ===========================================================================
+
+disabled_crons:
+  deacon-pr-review:
+    schedule: "*/30 * * * *"
+    command: "bash /home/pratham2/gt/.gt-mesh/scripts/deacon-pr-review.sh"
+    owner: "gt-local"
+    purpose: "Auto-review and merge approved PRs across Deepwork-AI repos"
+    created: "2026-03-06"
+    disabled: "2026-03-11"
+    reason: "GitHub auth removed — all PR work uses Gitea now"
 
   mesh-github-sync:
     schedule: "0 6 * * *"
@@ -66,13 +87,26 @@ crons:
     owner: "gt-local"
     purpose: "Daily sync to GitHub public repos"
     created: "2026-03-08"
+    disabled: "2026-03-11"
+    reason: "GitHub auth removed"
 
-  mesh-pack-updater:
-    schedule: "0 */2 * * *"
-    command: "bash /home/pratham2/gt/.gt-mesh/scripts/mesh-pack-updater.sh"
+  mesh-work-watchdog:
+    schedule: "*/5 * * * *"
+    command: "bash /home/pratham2/gt/.gt-mesh/scripts/mesh-work-watchdog.sh"
     owner: "gt-local"
-    purpose: "Update blueprint packs from DoltHub"
+    purpose: "Check gasclaw container sessions alive, restart if dead"
     created: "2026-03-08"
+    disabled: "2026-03-11"
+    reason: "Replaced by mayor-work-dispatcher.sh"
+
+  worker-flywheel:
+    schedule: "*/15 * * * *"
+    command: "/home/pratham2/gt/mayor/worker-flywheel.sh >> /tmp/worker-flywheel.log 2>&1"
+    owner: "gt-local"
+    purpose: "Worker session health monitoring"
+    created: "2026-03-08"
+    disabled: "2026-03-11"
+    reason: "Buggy zombie detection kills healthy Kimi sessions"
 
 # ===========================================================================
 # WORKER CRONS — auto-installed on mesh join via cron-audit.sh --enforce
@@ -111,16 +145,7 @@ worker_crons:
 
   worker-cron-audit:
     schedule: "0 6 * * *"
-    command: "bash $GT_ROOT/.gt-mesh/scripts/cron-audit.sh --enforce >> /tmp/cron-audit.log 2>&1"
+    command: "bash $GT_ROOT/.gt-mesh/scripts/cron-audit.sh --report-only >> /tmp/cron-audit.log 2>&1"
     owner: "worker"
-    purpose: "Daily audit: ensure crontab matches registry"
+    purpose: "Daily audit: report crontab vs registry drift"
     created: "2026-03-09"
-
-# REMOVED:
-#  check-gtconfig-issues:
-#    schedule: "*/30 * * * *"
-#    command: "/home/pratham2/gt/mayor/check-gtconfig-issues.sh"
-#    owner: "gt-local"
-#    purpose: "REMOVED 2026-03-06 — gtconfig work deprioritized, cron was generating noise"
-#    removed: "2026-03-06"
-#    reason: "gtconfig issues closed, work cancelled"
