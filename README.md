@@ -360,10 +360,36 @@ Co-Authored-By: Your Name <your-github-email>
 
 ---
 
+## Created By
+
+**[Pratham Bhatnagar](https://github.com/pratham-bhatnagar)** — creator and lead architect of GT Mesh.
+
+Built by [Pratham Bhatnagar](https://github.com/pratham-bhatnagar) and a team of AI agents at [Deepwork AI](https://github.com/masti-ai).
+
+### Contributors
+
+<!-- ALL-CONTRIBUTORS-LIST:START -->
+<a href="https://github.com/pratham-bhatnagar"><img src="https://github.com/pratham-bhatnagar.png" width="60px" alt="Pratham Bhatnagar" style="border-radius:50%"/></a>
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+AI agents (Claude, Kimi, MiniMax) contribute code, reviews, and coordination under human supervision.
+
+---
+
+## Support
+
+If you find GT Mesh useful, please consider giving it a star — it helps others discover the project.
+
+[![Star on GitHub](https://img.shields.io/github/stars/masti-ai/gt-mesh?style=social)](https://github.com/masti-ai/gt-mesh)
+
+---
+
 ## License
 
 MIT — see [LICENSE](LICENSE) for details.
 
 ---
 
-Built by [Deepwork AI](https://github.com/masti-ai) | Powered by [Gas Town](https://github.com/steveyegge/gastown) | Federation via [Wasteland](https://github.com/steveyegge/wasteland)
+<p align="center">
+  Created by <a href="https://github.com/pratham-bhatnagar">Pratham Bhatnagar</a> | <a href="https://github.com/masti-ai">Deepwork AI</a> | Powered by <a href="https://github.com/steveyegge/gastown">Gas Town</a> | Federation via <a href="https://github.com/steveyegge/wasteland">Wasteland</a>
+</p>

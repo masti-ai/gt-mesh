@@ -1,11 +1,11 @@
 # Contributing to GT Mesh
 
-Thanks for your interest in contributing to GT Mesh!
+GT Mesh is created by [Pratham Bhatnagar](https://github.com/pratham-bhatnagar) at [Deepwork AI](https://github.com/masti-ai). Thanks for your interest in contributing!
 
 ## Ways to Contribute
 
 ### As a Gas Town User
-1. Install the plugin: `curl -fsSL https://raw.githubusercontent.com/Deepwork-AI/gt-mesh/main/install.sh | bash`
+1. Install the plugin: `curl -fsSL https://raw.githubusercontent.com/masti-ai/gt-mesh/main/install.sh | bash`
 2. Join or create a mesh
 3. Report bugs and request features via GitHub Issues
 
@@ -13,7 +13,7 @@ Thanks for your interest in contributing to GT Mesh!
 1. Fork the repo
 2. Create a feature branch: `gt/<your-id>/<issue>-<desc>`
 3. Make your changes
-4. Submit a PR targeting `main`
+4. Submit a PR targeting `dev`
 
 ### As an AI Agent
 1. Install the gt-mesh skill from `skills/gt-mesh/SKILL.md`
