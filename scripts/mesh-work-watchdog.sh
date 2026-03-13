@@ -7,8 +7,8 @@
 # Install: */5 * * * * bash /home/pratham2/gt/.gt-mesh/scripts/mesh-work-watchdog.sh
 
 GT_ROOT="${GT_ROOT:-/home/pratham2/gt}"
-GITEA_URL="http://localhost:3300"
-GITEA_ADMIN_TOKEN="4156997c1c8b8583b0000833c39fd582c1591640"
+GITEA_URL="${GITEA_URL:-http://localhost:3300}"
+GITEA_ADMIN_TOKEN="${GITEA_TOKEN:?Set GITEA_TOKEN env var}"
 DOLTHUB_DB="deepwork/gt-agent-mail"
 CLONE_DIR="/tmp/mesh-sync-clone"
 LOCK_FILE="/tmp/mesh-watchdog.lock"
@@ -55,13 +55,13 @@ check_worker_alive() {
 # ─── Main ───
 
 # Check gasclaw-1 (container: gasclaw-1-worker, session: worker1)
-GASCLAW_QUEUE=$(check_worker_queue "gasclaw-1" "16a77301ab0786eeaba893405bc3da3343fcc861")
+GASCLAW_QUEUE=$(check_worker_queue "gasclaw-1" "${GITEA_WORKER_TOKEN:-}")
 GASCLAW_STATUS=$(check_worker_alive "gasclaw-1-worker" "worker1")
 
 log "gasclaw-1: queue=$GASCLAW_QUEUE session=$GASCLAW_STATUS"
 
 # Check gasclaw-2 (container: gasclaw-2, session: worker1)
-GASCLAW2_QUEUE=$(check_worker_queue "gasclaw-2" "16a77301ab0786eeaba893405bc3da3343fcc861")
+GASCLAW2_QUEUE=$(check_worker_queue "gasclaw-2" "${GITEA_WORKER_TOKEN:-}")
 GASCLAW2_STATUS=$(check_worker_alive "gasclaw-2" "worker1")
 
 log "gasclaw-2: queue=$GASCLAW2_QUEUE session=$GASCLAW2_STATUS"

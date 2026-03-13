@@ -9,7 +9,7 @@ Route patrol agents through LiteLLM proxy → MiniMax/Kimi backend.
 
 ### Environment Variables
 ```bash
-ANTHROPIC_BASE_URL=http://100.108.196.44:4000  # LiteLLM proxy
+ANTHROPIC_BASE_URL=${LITELLM_URL}  # LiteLLM proxy
 ANTHROPIC_API_KEY=<litellm-key-with-aliases>    # Key with model aliases
 ```
 
@@ -28,11 +28,11 @@ ANTHROPIC_API_KEY=<litellm-key-with-aliases>    # Key with model aliases
 In `.gt-town/town.toml` or per-rig `rig.toml`:
 ```toml
 [role_env.witness]
-ANTHROPIC_BASE_URL = "http://100.108.196.44:4000"
+ANTHROPIC_BASE_URL = "${LITELLM_URL}"
 ANTHROPIC_API_KEY = "<litellm-patrol-key>"
 
 [role_env.refinery]
-ANTHROPIC_BASE_URL = "http://100.108.196.44:4000"
+ANTHROPIC_BASE_URL = "${LITELLM_URL}"
 ANTHROPIC_API_KEY = "<litellm-patrol-key>"
 ```
 

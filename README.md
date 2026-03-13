@@ -54,17 +54,9 @@ All communication flows through a shared DoltHub database. No direct connections
 
 ---
 
-## Network Access (Tailscale)
+## Network Access
 
-| Service | Tailscale URL |
-|---------|--------------|
-| Gitea | http://100.108.196.44:3300 |
-| LiteLLM | http://100.108.196.44:4000 |
-| Command Center | http://100.108.196.44:3100 |
-| Planogram Dashboard | http://100.108.196.44:3000 |
-| Planogram API | http://100.108.196.44:8003 |
-| ALC AI Dashboard | http://100.108.196.44:3006 |
-| ALC AI API | http://100.108.196.44:8006 |
+Services are configured via environment variables (`GITEA_URL`, `LITELLM_URL`, etc.). See your `mesh.yaml` for connection details.
 
 ## Quick Start
 

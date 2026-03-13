@@ -334,6 +334,6 @@ gh project item-edit --project-id <id> --id <item-id> --field-id <status-field> 
 ## Git Platform Rule (HARDCODED)
 
 **GITEA-FIRST: Use Gitea for all git operations. GitHub is deprecated.**
-- Primary: http://100.108.196.44:3300 (or Docker host IP)
+- Primary: ${GITEA_URL} (configured via environment variable)
 - PRs and issues in Gitea only
 - Non-negotiable

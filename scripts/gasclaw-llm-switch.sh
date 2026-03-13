@@ -22,16 +22,16 @@ set -euo pipefail
 
 # Villa endpoint (production)
 VILLA_BASE_URL="https://minimax.villamarket.ai/v1"
-VILLA_API_KEY="sk-X2SENV_o4cP1Blx2uS0N_x2xqGPSJp5jRjFbMv4Zl-Y"
+VILLA_API_KEY="${VILLA_API_KEY:?Set VILLA_API_KEY env var}"
 
 # Local litellm (fallback — proxies to local vLLM MiniMax M2.5)
 # litellm runs on host port 4000, accessible from docker via 172.17.0.1
-LITELLM_BASE_URL="http://172.17.0.1:4000"
-LITELLM_API_KEY="sk-1564f41cd82a7303e6e3eb15cedc15eb76d1a3f556d8b890"
+LITELLM_BASE_URL="${LITELLM_URL:-http://172.17.0.1:4000}"
+LITELLM_API_KEY="${LITELLM_API_KEY:?Set LITELLM_API_KEY env var}"
 
 # Kimi (emergency fallback — uses Kimi's Anthropic-compatible API)
 KIMI_BASE_URL="https://api.kimi.com/coding/"
-KIMI_API_KEY="sk-kimi-4AUNQ3AcnIfiqfCM6UmukhVlZEhQObn4olBhkTtgWk9Z9Cqq9w5u3h6lnGLJuFGm"
+KIMI_API_KEY="${KIMI_API_KEY:?Set KIMI_API_KEY env var}"
 
 # Default model (litellm maps this to local MiniMax M2.5)
 DEFAULT_MODEL="claude-sonnet-4-6"

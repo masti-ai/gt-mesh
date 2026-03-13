@@ -6,8 +6,8 @@
 # Cron: 0 6 * * * bash /home/pratham2/gt/.gt-mesh/scripts/mesh-github-sync.sh
 
 GT_ROOT="/home/pratham2/gt"
-GITEA_URL="http://localhost:3300"
-GITEA_TOKEN="4156997c1c8b8583b0000833c39fd582c1591640"
+GITEA_URL="${GITEA_URL:-http://localhost:3300}"
+GITEA_TOKEN="${GITEA_TOKEN:?Set GITEA_TOKEN env var}"
 LOG="/tmp/mesh-github-sync.log"
 
 log() { echo "$(date -u +%Y-%m-%dT%H:%M:%S) $1" >> "$LOG"; }
@@ -21,7 +21,7 @@ for repo in OfficeWorld ai-planogram alc-ai-villa; do
   # First pull latest from Gitea into gasclaw's local
   docker exec gasclaw su - gasclaw -c "
     cd /workspace/gt/$repo && \
-    git remote add gitea http://172.17.0.1:3300/Deepwork-AI/$repo.git 2>/dev/null; \
+    git remote add gitea ${GITEA_URL:-http://localhost:3300}/Deepwork-AI/$repo.git 2>/dev/null; \
     git fetch gitea dev 2>/dev/null && \
     git checkout dev 2>/dev/null && \
     git merge gitea/dev --no-edit 2>/dev/null

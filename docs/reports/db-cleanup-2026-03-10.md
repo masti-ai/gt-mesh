@@ -3,7 +3,7 @@
 **Bead:** hq-x16cy  
 **Date:** 2026-03-10  
 **Executor:** deepwork-eng-2 (Kimi K2)  
-**Server:** localhost:3307
+**Server:** Dolt SQL server
 
 ---
 
@@ -20,7 +20,7 @@ Database cleanup task completed. No orphan test databases or stale wisps require
 
 ---
 
-## 1. Databases on Server (localhost:3307)
+## 1. Databases on Server
 
 ```
 - beads
@@ -81,7 +81,7 @@ The following tables were verified to be untouched (as required):
 
 ## 5. Methodology
 
-1. Connected to Dolt SQL server at `127.0.0.1:3307` using PyMySQL
+1. Connected to Dolt SQL server using PyMySQL
 2. Listed all databases with `SHOW DATABASES`
 3. Scanned for orphan test databases matching patterns
 4. Queried `hq.wisps` table for open wisps

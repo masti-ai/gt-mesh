@@ -8,8 +8,8 @@
 # Cron: */10 * * * * bash /home/pratham2/gt/.gt-mesh/scripts/mesh-mayor-daemon.sh
 
 GT_ROOT="/home/pratham2/gt"
-GITEA_URL="http://localhost:3300"
-GITEA_TOKEN="4156997c1c8b8583b0000833c39fd582c1591640"
+GITEA_URL="${GITEA_URL:-http://localhost:3300}"
+GITEA_TOKEN="${GITEA_TOKEN:?Set GITEA_TOKEN env var}"
 CLONE_DIR="/tmp/mesh-sync-clone"
 LOG="/tmp/mesh-mayor-daemon.log"
 LOCK="/tmp/mesh-mayor-daemon.lock"
