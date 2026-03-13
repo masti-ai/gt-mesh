@@ -4,20 +4,21 @@
 
 # GT Mesh
 
-**The collaboration protocol for Gas Town.**
+**Multi-agent orchestration framework for Claude Code**
 
-GT Mesh connects multiple [Gas Town](https://github.com/steveyegge/gastown) instances into a federated coding network. Built on [DoltHub](https://www.dolthub.com/) (Git for data) and inspired by the [Wasteland](https://github.com/steveyegge/wasteland) federation protocol, GT Mesh gives every Gas Town a sovereign identity, a shared work board, and cryptographically attributable contributions.
+GT Mesh connects multiple [Gas Town](https://github.com/steveyegge/gastown) instances into a federated coding network. Built on [Dolt](https://github.com/dolthub/dolt) (Git for data) and inspired by the [Wasteland](https://github.com/steveyegge/wasteland) federation protocol, GT Mesh gives every agent node a sovereign identity, a shared work board, and cryptographically attributable contributions.
 
-[![Release](https://img.shields.io/github/v/release/Deepwork-AI/gt-mesh?include_prereleases)](https://github.com/Deepwork-AI/gt-mesh/releases)
+[![Release](https://img.shields.io/github/v/release/masti-ai/gt-mesh?include_prereleases)](https://github.com/masti-ai/gt-mesh/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Stars](https://img.shields.io/github/stars/masti-ai/gt-mesh)](https://github.com/masti-ai/gt-mesh/stargazers)
 
 ---
 
 ## Why GT Mesh?
 
-Gas Town is powerful for solo developers. But real software is built by teams. GT Mesh makes it so multiple people — each running their own Gas Town — can work together without sharing credentials, filesystem access, or API keys.
+Claude Code is powerful for solo developers. But real software is built by teams. GT Mesh makes it so multiple people — each running their own Claude Code workspace — can coordinate AI agents across machines without sharing credentials, filesystem access, or API keys.
 
-**The key idea:** Your Gas Town is sovereign. You keep full control. When someone joins your mesh, they can see your project and suggest work — but your agents execute it, on your terms.
+**The key idea:** Your workspace is sovereign. You keep full control. When someone joins your mesh, they can see your project and suggest work — but your agents execute it, on your terms.
 
 ### What sets GT Mesh apart
 
@@ -26,7 +27,7 @@ Gas Town is powerful for solo developers. But real software is built by teams. G
 | AI agents coordinate automatically | Yes | No | No |
 | Contributor never needs your credentials | Yes | Partial (PATs) | No |
 | Work flows through a review gate | Yes | Yes (PRs) | No |
-| Reputation is cryptographically attributable | Yes (via Wasteland stamps) | No | No |
+| Reputation is cryptographically attributable | Yes | No | No |
 | Time-limited access with invite tokens | Yes | No | No |
 | Config-driven behavioral roles | Yes | No | No |
 
@@ -36,52 +37,72 @@ Gas Town is powerful for solo developers. But real software is built by teams. G
 
 ```
 You (coordinator)                         Friend (contributor)
-     │                                          │
+     |                                          |
   gt mesh init                             gt mesh join MESH-A7K9
-     │                                          │
-  gt mesh invite ──► MESH-A7K9 ──────────► Pastes code
-     │                                          │
-     │                                    Creates beads (tasks)
-     │                                          │
-  Mayor reviews ◄── DoltHub sync ─────── "Add dark mode"
-     │
-  Accepts → polecat builds it
-     │
-  "PR merged" ──── DoltHub sync ────────► Gets notified
+     |                                          |
+  gt mesh invite ----> MESH-A7K9 ----------> Pastes code
+     |                                          |
+     |                                    Creates tasks (beads)
+     |                                          |
+  Coordinator reviews <-- Dolt sync ------ "Add dark mode"
+     |
+  Accepts -> worker agent builds it
+     |
+  "PR merged" ------- Dolt sync ----------> Gets notified
 ```
 
-All communication flows through a shared DoltHub database. No direct connections between Gas Towns. No firewall rules. No VPNs.
+All communication flows through a shared Dolt database. No direct connections between nodes. No firewall rules. No VPNs.
+
+### Architecture
+
+```
+                    +-------------------------+
+                    |    Dolt Hub Database     |
+                    |                         |
+                    |  messages | peers       |
+                    |  channels | access      |
+                    |  invites  | findings    |
+                    +------------+------------+
+                                |
+                 +--------------+--------------+
+                 |              |              |
+            +----v----+   +----v----+   +----v----+
+            |  Node A  |   |  Node B  |   |  Node C  |
+            | (coord.) |   | (worker) |   | (contri- |
+            |          |   |          |   |  butor)  |
+            +----------+   +----------+   +----------+
+                 ^              ^              ^
+            sync 2min      sync 2min      sync 2min
+```
+
+Every node syncs with ONE central Dolt database — not with each other. This scales linearly: adding a node is just one more sync client, not N^2 connections.
 
 ---
-
-## Network Access
-
-Services are configured via environment variables (`GITEA_URL`, `LITELLM_URL`, etc.). See your `mesh.yaml` for connection details.
 
 ## Quick Start
 
 ### Install
 
 ```bash
-# One command (from inside your Gas Town)
-curl -fsSL https://raw.githubusercontent.com/Deepwork-AI/gt-mesh/dev/install.sh | bash
+# One command (inside your Claude Code workspace)
+curl -fsSL https://raw.githubusercontent.com/masti-ai/gt-mesh/main/install.sh | bash
 
 # Or clone manually
-git clone https://github.com/Deepwork-AI/gt-mesh.git .gt-mesh && bash .gt-mesh/install.sh
+git clone https://github.com/masti-ai/gt-mesh.git .gt-mesh && bash .gt-mesh/install.sh
 ```
 
 The installer auto-detects your platform:
-- **steveyegge/gastown** → installs daemon plugin (`plugins/gt-mesh-sync/plugin.md`)
-- **gasclaw** (any variant) → installs OpenClaw skill (`skills/gt-mesh-sync/SKILL.md`)
-- **Generic GT** → installs scripts only
+- **steveyegge/gastown** — installs daemon plugin
+- **gasclaw** (any variant) — installs OpenClaw skill
+- **Generic workspace** — installs scripts only
 
-### Initialize
+### Initialize a mesh
 
 ```bash
 gt mesh init --role coordinator --github your-username
 ```
 
-This creates `mesh.yaml` (your mesh identity), connects to DoltHub, and registers your Gas Town as a peer.
+This creates `mesh.yaml` (your mesh identity), connects to Dolt, and registers your node as a peer.
 
 ### Invite someone
 
@@ -90,125 +111,160 @@ gt mesh invite --role contributor --expires 7d
 # Output: MESH-A7K9-XPLN (share this code)
 ```
 
-Invites are **time-limited tokens**. When they expire, access is revoked automatically. You can create:
-- **Permanent tokens** — `--expires never` (for trusted long-term collaborators)
-- **Session tokens** — `--expires 4h` (for a single pairing session)
-- **Sprint tokens** — `--expires 14d` (for a development sprint)
+Invites are **time-limited tokens**. When they expire, access is revoked automatically.
 
-### Join (friend's side)
+### Join a mesh
 
 ```bash
 gt mesh join MESH-A7K9-XPLN
-# Connects, syncs state, can see shared rigs
+# Connects, syncs state, ready to collaborate
 ```
 
 ---
 
 ## Behavioral Roles
 
-Every Gas Town in a mesh has a **behavioral role** that determines what it does — not just what it *can* do, but what it *will* do. This is configured in `mesh.yaml` and enforced deterministically.
+Every node in a mesh has a **behavioral role** that determines what it does — not just what it *can* do, but what it *will* do. Configured in `mesh.yaml` and enforced deterministically.
 
 | Role | Creates tasks | Writes code | Assigns work | Reviews PRs | Merges |
 |------|:---:|:---:|:---:|:---:|:---:|
-| **Planner** | Yes | **Never** | Yes | Yes | Yes |
-| **Worker** | No | **Yes** | No | No | **Never** |
+| **Planner** | Yes | Never | Yes | Yes | Yes |
+| **Worker** | No | Yes | No | No | Never |
 | **Reviewer** | No | No | No | Yes | Yes |
 | **Contributor** | Yes | No | No | No | No |
 
 ```yaml
 # mesh.yaml
 behavioral_role:
-  this_gt: "planner"           # This GT plans and delegates
+  this_gt: "planner"
   behavior:
-    writes_code: false          # HARD BLOCK — config-enforced
-    delegates_always: true      # Must send work to workers
+    writes_code: false        # Hard block — config-enforced
+    delegates_always: true    # Must send work to workers
   peer_roles:
-    gt-docker:
+    worker-1:
       role: "worker"
       specialties: ["backend", "infrastructure"]
 ```
 
-A planner Gas Town will **never** write code itself — it breaks tasks into beads and sends them to workers. A worker Gas Town will **never** merge its own PRs — it creates branches, writes code, and waits for review. This eliminates the need to repeatedly tell agents their role.
+A planner node will **never** write code — it breaks tasks into work items and delegates. A worker node will **never** merge its own PRs. This eliminates the need to repeatedly instruct agents about their role.
+
+---
+
+## Formulas
+
+Formulas are TOML-based workflow definitions that describe multi-step agent processes. They are the building blocks of how work gets done in a mesh.
+
+### Example: `shiny.formula.toml`
+
+```toml
+description = "Engineer in a Box - design before you code, review before you ship"
+formula = "shiny"
+type = "workflow"
+version = 1
+
+[[steps]]
+id = "design"
+title = "Design {{feature}}"
+description = "Think about architecture before writing code."
+acceptance = "Design doc committed"
+
+[[steps]]
+id = "implement"
+title = "Implement {{feature}}"
+needs = ["design"]
+acceptance = "All files modified/created and committed"
+
+[[steps]]
+id = "review"
+title = "Review implementation"
+needs = ["implement"]
+acceptance = "Self-review complete, no obvious bugs"
+
+[[steps]]
+id = "test"
+title = "Test {{feature}}"
+needs = ["review"]
+acceptance = "All tests pass, no regressions"
+
+[[steps]]
+id = "submit"
+title = "Submit for merge"
+needs = ["test"]
+acceptance = "Clean git status, pushed to feature branch"
+
+[vars]
+[vars.feature]
+description = "The feature being implemented"
+required = true
+```
+
+### Key concepts
+
+- **Steps** define the workflow stages, each with acceptance criteria
+- **`needs`** creates a dependency graph — steps run in order
+- **`{{variables}}`** are interpolated at runtime from `[vars]`
+- **Formulas are composable** — reference other formulas as sub-steps
+
+### Included formulas
+
+| Formula | Purpose |
+|---------|---------|
+| `shiny` | Full engineering workflow: design, implement, review, test, submit |
+| `code-review` | Structured code review process |
+| `design` | Architecture design phase |
+| `security-audit` | Security review checklist |
+| `mol-polecat-work` | Worker agent task execution |
+| `mol-convoy-*` | Multi-agent convoy coordination |
+| `towers-of-hanoi-*` | Benchmarking formulas for agent capability testing |
 
 ---
 
 ## Access Control
 
-Four-level permission hierarchy, inspired by [Wasteland](https://github.com/steveyegge/wasteland)'s trust model:
+Four-level permission hierarchy:
 
 ```
-OWNER ─── Full control: rules, access, delete, transfer
-  │
-ADMIN ─── Merge PRs, approve/reject, manage contributors
-  │
-WRITE ─── Create beads, claim work, create PRs, publish findings
-  │
-READ ──── View everything, send messages, cannot modify
+OWNER --- Full control: rules, access, delete, transfer
+  |
+ADMIN --- Merge PRs, approve/reject, manage contributors
+  |
+WRITE --- Create tasks, claim work, create PRs, publish findings
+  |
+READ ---- View everything, send messages, cannot modify
 ```
 
-### Time-Limited Access (Invite Tokens)
+### Time-limited access
 
 ```bash
-# Create a 24-hour access token for a code review session
+# 24-hour token for a code review session
 gt mesh invite --role read --expires 24h
-# → MESH-R4KP-7WXN
 
-# Create a 2-week sprint token for a contractor
-gt mesh invite --role write --rigs my_project --expires 14d
-# → MESH-W8JL-3MPQ
+# 2-week sprint token for a contractor
+gt mesh invite --role write --expires 14d
 
-# Create a permanent token for a co-founder
+# Permanent token for a co-founder
 gt mesh invite --role admin --expires never
-# → MESH-A2NF-9YBC
 
 # Revoke any peer immediately
-gt mesh revoke gt-friend
+gt mesh revoke <peer-id>
 ```
-
----
-
-## Federation & Wasteland Integration
-
-GT Mesh builds on the [Wasteland federation protocol](https://github.com/steveyegge/wasteland):
-
-| Wasteland Concept | GT Mesh Equivalent | Purpose |
-|-------------------|-------------------|---------|
-| **HOP URI** (`hop://email/handle/`) | Mesh peer identity | Unique, routable identity for every GT |
-| **Wanted board** | Shared beads | Cross-GT work items with claim system |
-| **Completions** | PR submissions | Verifiable evidence of work done |
-| **Stamps** | Reputation tracking | Cryptographically attributable quality ratings |
-| **Rigs table** | Peers table | Registry of all connected Gas Towns |
-| **Fork-based federation** | DoltHub sync | Sovereign data with shared commons |
-| **`wl` CLI** | `gt mesh` CLI | Same patterns, different scope |
-
-Use both together:
-
-```bash
-# Post work to the Wasteland wanted board
-gt wl post --title "Add dark mode" --type feature --priority 2
-
-# Or use gt mesh for direct GT-to-GT coordination
-gt mesh send gt-docker "Build dark mode" "See issue #15"
-```
-
-Wasteland is the **public commons** (open to all rigs). GT Mesh is **private collaboration** (invite-only). They share the same DoltHub infrastructure and can interoperate.
 
 ---
 
 ## Commands
 
-### Working (tested, available now)
+### Available now
 
 ```bash
 gt mesh init                          # Initialize mesh node
 gt mesh status                        # Dashboard with peers + unread count
-gt mesh send <gt-id> "subj" "body"    # Send cross-GT message
+gt mesh send <id> "subj" "body"       # Send cross-node message
 gt mesh inbox [--all]                 # Check incoming messages
-gt mesh sync                          # Force sync with DoltHub
+gt mesh sync                          # Force sync with Dolt
 gt mesh help                          # Show all commands
 ```
 
-### Coming Soon
+### Coming soon
 
 ```bash
 gt mesh invite [--role R] [--expires D]  # Generate invite token
@@ -227,9 +283,9 @@ GT Mesh works as a plugin in **every Gas Town variant**:
 
 | Platform | Integration | Auto-detected |
 |----------|------------|:---:|
-| [steveyegge/gastown](https://github.com/steveyegge/gastown) | Daemon plugin (`plugin.md`, TOML frontmatter) | Yes |
-| [gastown-publish/gasclaw](https://github.com/gastown-publish/gasclaw) | OpenClaw skill (`SKILL.md`, YAML frontmatter) | Yes |
-| [Deepwork-AI/gasclaw](https://github.com/Deepwork-AI/gasclaw) | OpenClaw skill (`SKILL.md`, YAML frontmatter) | Yes |
+| [steveyegge/gastown](https://github.com/steveyegge/gastown) | Daemon plugin (TOML frontmatter) | Yes |
+| [gastown-publish/gasclaw](https://github.com/gastown-publish/gasclaw) | OpenClaw skill (YAML frontmatter) | Yes |
+| Any Claude Code workspace | Shell scripts | Yes |
 
 The installer detects your platform and installs the correct integration automatically.
 
@@ -243,46 +299,71 @@ gt-mesh/
 │   ├── mesh.sh           # Main dispatcher
 │   ├── mesh-init.sh      # Initialize mesh node
 │   ├── mesh-status.sh    # Dashboard
-│   ├── mesh-send.sh      # Cross-GT messaging
+│   ├── mesh-send.sh      # Cross-node messaging
 │   ├── mesh-inbox.sh     # Read messages
-│   └── mesh-sync.sh      # Force sync
+│   └── mesh-sync.sh      # Dolt sync
+├── formulas/             # TOML workflow definitions
+│   ├── shiny.formula.toml
+│   ├── code-review.formula.toml
+│   ├── security-audit.formula.toml
+│   └── ...               # 40+ formulas
+├── blueprints/           # Node configuration templates
+├── packs/                # Portable config packs
 ├── integrations/
-│   ├── gastown/           # steveyegge/gastown plugin
-│   └── gasclaw/           # gasclaw skill
-├── plugins/               # GT daemon plugins
-├── skills/                # Claude Code skills for AI agents
-├── spec/                  # mesh.yaml reference specification
-├── docs/                  # Full documentation
-├── tests/                 # Stress test results
-└── install.sh             # One-command installer
+│   ├── gastown/          # steveyegge/gastown plugin
+│   └── gasclaw/          # gasclaw skill
+├── skills/               # Claude Code skills for AI agents
+├── spec/                 # mesh.yaml reference specification
+├── docs/                 # Full documentation
+├── templates/            # PR and issue templates
+├── docker/               # Container deployment
+└── install.sh            # One-command installer
 ```
 
 ---
 
 ## Documentation
 
-- [Full Documentation](docs/DOCUMENTATION.md) — Setup, lifecycle, access control, rules, scaling
-- [Architecture](docs/ARCHITECTURE.md) — DoltHub backbone, sync model, schema
-- [Manifesto](docs/MANIFESTO.md) — Founder's principles and non-negotiables
+- [Architecture](docs/ARCHITECTURE.md) — Dolt backbone, sync model, database schema
+- [Manifesto](docs/MANIFESTO.md) — Design principles and non-negotiables
 - [mesh.yaml Reference](spec/mesh.yaml.reference) — Complete configuration spec
 - [Contributing](CONTRIBUTING.md) — How to contribute to GT Mesh
+
+---
+
+## Contributing
+
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+**Quick version:**
+
+1. Fork the repo
+2. Create a feature branch (`git checkout -b feature/amazing-thing`)
+3. Make your changes
+4. Run any existing tests
+5. Submit a PR targeting the `dev` branch
+
+All commits must include proper attribution:
+```
+Co-Authored-By: Your Name <your-github-email>
+```
 
 ---
 
 ## Related Projects
 
 - [Gas Town](https://github.com/steveyegge/gastown) — The multi-agent workspace manager GT Mesh extends
-- [Wasteland](https://github.com/steveyegge/wasteland) — Federation protocol for Gas Towns (public commons)
+- [Wasteland](https://github.com/steveyegge/wasteland) — Federation protocol for Gas Towns
 - [Gasclaw](https://github.com/gastown-publish/gasclaw) — Single-container Gas Town deployment
-- [Beads](https://github.com/steveyegge/beads) — Git-backed issue tracking used by GT Mesh
+- [Beads](https://github.com/steveyegge/beads) — Git-backed issue tracking
 - [Dolt](https://github.com/dolthub/dolt) — Git-for-data database powering the mesh backbone
 
 ---
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE) for details.
 
 ---
 
-Built by [Deepwork AI](https://github.com/Deepwork-AI) • Powered by [Gas Town](https://github.com/steveyegge/gastown) • Federation via [Wasteland](https://github.com/steveyegge/wasteland)
+Built by [Deepwork AI](https://github.com/masti-ai) | Powered by [Gas Town](https://github.com/steveyegge/gastown) | Federation via [Wasteland](https://github.com/steveyegge/wasteland)
