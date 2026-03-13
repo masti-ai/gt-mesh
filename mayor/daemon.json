@@ -1,0 +1,67 @@
+{
+  "heartbeat": {
+    "enabled": true,
+    "interval": "3m"
+  },
+  "patrols": {
+    "compactor_dog": {
+      "enabled": true,
+      "interval": "24h",
+      "threshold": 500
+    },
+    "deacon": {
+      "enabled": true,
+      "interval": "5m",
+      "agent": "deacon"
+    },
+    "doctor_dog": {
+      "enabled": true,
+      "interval": "5m"
+    },
+    "dolt_backup": {
+      "enabled": true,
+      "interval": "15m"
+    },
+    "jsonl_git_backup": {
+      "enabled": true,
+      "interval": "15m",
+      "scrub": true
+    },
+    "refinery": {
+      "agent": "refinery",
+      "enabled": true,
+      "interval": "5m",
+      "rigs": [
+        "content_studio",
+        "villa_ai_planogram",
+        "gt_arcade",
+        "deepwork_site"
+      ]
+    },
+    "scheduled_maintenance": {
+      "enabled": true,
+      "window": "03:00",
+      "interval": "daily",
+      "threshold": 1000
+    },
+    "wisp_reaper": {
+      "enabled": true,
+      "interval": "30m",
+      "max_age": "24h",
+      "delete_age": "168h"
+    },
+    "witness": {
+      "agent": "witness",
+      "enabled": true,
+      "interval": "5m",
+      "rigs": [
+        "content_studio",
+        "villa_ai_planogram",
+        "gt_arcade",
+        "deepwork_site"
+      ]
+    }
+  },
+  "type": "daemon-patrol-config",
+  "version": 1
+}
