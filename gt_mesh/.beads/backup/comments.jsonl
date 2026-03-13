@@ -1,0 +1,2 @@
+{"author":"deacon","created_at":"2026-03-10T18:50:12Z","id":1,"issue_id":"gtm-xhj","text":"Patrol cycle compaction: 109 wisps deleted, 590 skipped (within TTL). Pre-cycle: 699, post-cycle: ~590."}
+{"author":"deacon","created_at":"2026-03-10T19:11:25Z","id":2,"issue_id":"gtm-xhj","text":"Patrol cycle 2026-03-10T19:00Z compaction: 595 wisps checked, 0 deleted (all within TTL). Burned 3 abandoned patrol wisps (gtm-wisp-4sdzz, gtm-wisp-y5qg5 deacon; gtm-wisp-2nmpt refinery)."}

@@ -2,3 +2,13 @@
 {"timestamp":"2026-03-08T08:46:33Z","operation":"burn","pinned_bead_id":"hq-k9ps3","detached_molecule":"hq-wisp-vd8jdf","reason":"force re-sling: burning stale molecules","previous_state":"open"}
 {"timestamp":"2026-03-08T08:47:23Z","operation":"burn","pinned_bead_id":"hq-k9ps3","detached_molecule":"hq-wisp-vaouzh","reason":"force re-sling: burning stale molecules","previous_state":"hooked"}
 {"timestamp":"2026-03-08T08:50:05Z","operation":"burn","pinned_bead_id":"hq-k9ps3","detached_molecule":"hq-wisp-mqwct9","reason":"force re-sling: burning stale molecules","previous_state":"hooked"}
+{"timestamp":"2026-03-10T09:28:48Z","operation":"burn","pinned_bead_id":"hq-7m3b","detached_molecule":"hq-wisp-8b5u5q","reason":"force re-sling: burning stale molecules","previous_state":"open"}
+{"timestamp":"2026-03-11T06:12:50Z","operation":"burn","pinned_bead_id":"hq-p7g8","detached_molecule":"hq-wisp-weqwg2","reason":"force re-sling: burning stale molecules","previous_state":"open"}
+{"timestamp":"2026-03-11T06:13:30Z","operation":"burn","pinned_bead_id":"hq-osb2","detached_molecule":"hq-wisp-1guez9","reason":"force re-sling: burning stale molecules","previous_state":"hooked"}
+{"timestamp":"2026-03-11T06:16:03Z","operation":"burn","pinned_bead_id":"hq-osb2","detached_molecule":"hq-wisp-ix8jzg","reason":"force re-sling: burning stale molecules","previous_state":"open"}
+{"timestamp":"2026-03-11T06:19:54Z","operation":"burn","pinned_bead_id":"hq-smlz","detached_molecule":"hq-wisp-cdf0n9","reason":"force re-sling: burning stale molecules","previous_state":"open"}
+{"timestamp":"2026-03-11T06:20:14Z","operation":"burn","pinned_bead_id":"hq-smlz","detached_molecule":"hq-wisp-fzouhw","reason":"force re-sling: burning stale molecules","previous_state":"hooked"}
+{"timestamp":"2026-03-11T08:16:09Z","operation":"burn","pinned_bead_id":"hq-5yyr","detached_molecule":"hq-wisp-1a3h6m","reason":"force re-sling: burning stale molecules","previous_state":"hooked"}
+{"timestamp":"2026-03-12T11:19:11Z","operation":"burn","pinned_bead_id":"hq-bz8b","detached_molecule":"hq-wisp-w9l9yb","reason":"force re-sling: burning stale molecules","previous_state":"hooked"}
+{"timestamp":"2026-03-12T21:09:52Z","operation":"burn","pinned_bead_id":"hq-dsni","detached_molecule":"hq-wisp-z13opg","reason":"force re-sling: burning stale molecules","previous_state":"open"}
+{"timestamp":"2026-03-12T21:29:32Z","operation":"burn","pinned_bead_id":"hq-dsni","detached_molecule":"hq-wisp-yf2vtx","reason":"force re-sling: burning stale molecules","previous_state":"open"}

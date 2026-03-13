@@ -1,6 +1,7 @@
 dolt:
   port: 3307
   host: 127.0.0.1
-  database: beads
+  database: hq
+  data-dir: /home/pratham2/gt/.dolt-data
 
 routing.mode: "explicit"
