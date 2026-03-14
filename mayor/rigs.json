@@ -2,7 +2,7 @@
   "version": 1,
   "rigs": {
     "content_studio": {
-      "git_url": "http://gt-local:4156997c1c8b8583b0000833c39fd582c1591640@localhost:3300/Deepwork-AI/content-studio.git",
+      "git_url": "http://gt-local:d43a23e8baa469cadb482fe8f13283f1c45f61a9@localhost:3300/Deepwork-AI/content-studio.git",
       "added_at": "2026-03-09T12:23:56.276642513Z",
       "beads": {
         "repo": "",
@@ -10,7 +10,7 @@
       }
     },
     "deepwork_site": {
-      "git_url": "http://freebird-ai:4156997c1c8b8583b0000833c39fd582c1591640@100.108.196.44:3300/Deepwork-AI/deepwork-site.git",
+      "git_url": "http://freebird-ai:d43a23e8baa469cadb482fe8f13283f1c45f61a9@100.108.196.44:3300/Deepwork-AI/deepwork-site.git",
       "added_at": "2026-03-13T05:27:36.559906951Z",
       "beads": {
         "repo": "",
@@ -34,11 +34,19 @@
       }
     },
     "image_studio": {
-      "git_url": "http://gt-local:4156997c1c8b8583b0000833c39fd582c1591640@localhost:3300/Deepwork-AI/image-studio.git",
+      "git_url": "http://gt-local:d43a23e8baa469cadb482fe8f13283f1c45f61a9@localhost:3300/Deepwork-AI/image-studio.git",
       "added_at": "2026-03-11T12:32:32.535598924Z",
       "beads": {
         "repo": "",
         "prefix": "img"
+      }
+    },
+    "officeworld": {
+      "git_url": "http://localhost:3300/Deepwork-AI/OfficeWorld.git",
+      "added_at": "2026-03-14T02:06:55.4218033Z",
+      "beads": {
+        "repo": "",
+        "prefix": "of"
       }
     },
     "villa_ai_planogram": {

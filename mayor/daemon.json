@@ -35,7 +35,10 @@
         "content_studio",
         "villa_ai_planogram",
         "gt_arcade",
-        "deepwork_site"
+        "deepwork_site",
+        "image_studio",
+        "villa_alc_ai",
+        "officeworld"
       ]
     },
     "scheduled_maintenance": {
@@ -58,7 +61,10 @@
         "content_studio",
         "villa_ai_planogram",
         "gt_arcade",
-        "deepwork_site"
+        "deepwork_site",
+        "image_studio",
+        "villa_alc_ai",
+        "officeworld"
       ]
     }
   },
