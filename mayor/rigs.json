@@ -38,7 +38,7 @@
       "added_at": "2026-03-11T12:32:32.535598924Z",
       "beads": {
         "repo": "",
-        "prefix": "img"
+        "prefix": "ims"
       }
     },
     "officeworld": {
@@ -47,6 +47,14 @@
       "beads": {
         "repo": "",
         "prefix": "of"
+      }
+    },
+    "oss_lab": {
+      "git_url": "http://localhost:3300/Deepwork-AI/oss-research-lab.git",
+      "added_at": "2026-03-16T04:54:54.086062846Z",
+      "beads": {
+        "repo": "",
+        "prefix": "osl"
       }
     },
     "villa_ai_planogram": {

@@ -34,11 +34,11 @@
       "rigs": [
         "content_studio",
         "villa_ai_planogram",
-        "gt_arcade",
         "deepwork_site",
         "image_studio",
         "villa_alc_ai",
-        "officeworld"
+        "officeworld",
+        "oss_lab"
       ]
     },
     "scheduled_maintenance": {
@@ -60,11 +60,11 @@
       "rigs": [
         "content_studio",
         "villa_ai_planogram",
-        "gt_arcade",
         "deepwork_site",
         "image_studio",
         "villa_alc_ai",
-        "officeworld"
+        "officeworld",
+        "oss_lab"
       ]
     }
   },
