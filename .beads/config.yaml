@@ -3,5 +3,7 @@ dolt:
   host: 127.0.0.1
   database: hq
   data-dir: /home/pratham2/gt/.dolt-data
+  auto-start: false
 
 routing.mode: "explicit"
+issue_prefix: "deacon"
