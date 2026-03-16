@@ -57,6 +57,14 @@
         "prefix": "osl"
       }
     },
+    "research_lab": {
+      "git_url": "http://localhost:3300/Deepwork-AI/research-lab.git",
+      "added_at": "2026-03-16T07:54:22.483819527Z",
+      "beads": {
+        "repo": "",
+        "prefix": "rl"
+      }
+    },
     "villa_ai_planogram": {
       "git_url": "git@github.com:Deepwork-AI/ai-planogram.git",
       "added_at": "2026-02-28T11:08:46.040670055Z",

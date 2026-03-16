@@ -38,7 +38,8 @@
         "image_studio",
         "villa_alc_ai",
         "officeworld",
-        "oss_lab"
+        "oss_lab",
+        "research_lab"
       ]
     },
     "scheduled_maintenance": {
@@ -64,7 +65,8 @@
         "image_studio",
         "villa_alc_ai",
         "officeworld",
-        "oss_lab"
+        "oss_lab",
+        "research_lab"
       ]
     }
   },
