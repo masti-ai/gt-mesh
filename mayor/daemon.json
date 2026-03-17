@@ -32,14 +32,11 @@
       "enabled": true,
       "interval": "5m",
       "rigs": [
-        "content_studio",
         "villa_ai_planogram",
         "deepwork_site",
-        "image_studio",
         "villa_alc_ai",
         "officeworld",
-        "oss_lab",
-        "research_lab"
+        "murmur"
       ]
     },
     "scheduled_maintenance": {
@@ -59,14 +56,11 @@
       "enabled": true,
       "interval": "5m",
       "rigs": [
-        "content_studio",
         "villa_ai_planogram",
         "deepwork_site",
-        "image_studio",
         "villa_alc_ai",
         "officeworld",
-        "oss_lab",
-        "research_lab"
+        "murmur"
       ]
     }
   },
