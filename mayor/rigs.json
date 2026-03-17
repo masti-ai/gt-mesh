@@ -1,44 +1,12 @@
 {
   "version": 1,
   "rigs": {
-    "content_studio": {
-      "git_url": "http://gt-local:d43a23e8baa469cadb482fe8f13283f1c45f61a9@localhost:3300/Deepwork-AI/content-studio.git",
-      "added_at": "2026-03-09T12:23:56.276642513Z",
-      "beads": {
-        "repo": "",
-        "prefix": "cnt"
-      }
-    },
     "deepwork_site": {
       "git_url": "http://freebird-ai:d43a23e8baa469cadb482fe8f13283f1c45f61a9@100.108.196.44:3300/Deepwork-AI/deepwork-site.git",
       "added_at": "2026-03-13T05:27:36.559906951Z",
       "beads": {
         "repo": "",
         "prefix": "ds"
-      }
-    },
-    "gt_arcade": {
-      "git_url": "git@github.com:freebird-ai/gt-arcade.git",
-      "added_at": "2026-03-04T04:38:51.650333666Z",
-      "beads": {
-        "repo": "",
-        "prefix": "gta"
-      }
-    },
-    "gt_mesh": {
-      "git_url": "git@github.com:Deepwork-AI/gt-mesh.git",
-      "added_at": "2026-03-06T13:01:38.950988563Z",
-      "beads": {
-        "repo": "",
-        "prefix": "gtm"
-      }
-    },
-    "image_studio": {
-      "git_url": "http://gt-local:d43a23e8baa469cadb482fe8f13283f1c45f61a9@localhost:3300/Deepwork-AI/image-studio.git",
-      "added_at": "2026-03-11T12:32:32.535598924Z",
-      "beads": {
-        "repo": "",
-        "prefix": "ims"
       }
     },
     "media_studio": {
@@ -65,20 +33,12 @@
         "prefix": "of"
       }
     },
-    "oss_lab": {
-      "git_url": "http://localhost:3300/Deepwork-AI/oss-research-lab.git",
-      "added_at": "2026-03-16T04:54:54.086062846Z",
+    "products": {
+      "git_url": "http://localhost:3300/Deepwork-AI/products.git",
+      "added_at": "2026-03-17T09:57:20.756361512Z",
       "beads": {
         "repo": "",
-        "prefix": "osl"
-      }
-    },
-    "research_lab": {
-      "git_url": "http://localhost:3300/Deepwork-AI/research-lab.git",
-      "added_at": "2026-03-16T07:54:22.483819527Z",
-      "beads": {
-        "repo": "",
-        "prefix": "rl"
+        "prefix": "prd"
       }
     },
     "villa_ai_planogram": {

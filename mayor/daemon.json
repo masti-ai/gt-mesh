@@ -37,7 +37,8 @@
         "villa_alc_ai",
         "officeworld",
         "murmur",
-        "media_studio"
+        "media_studio",
+        "products"
       ]
     },
     "scheduled_maintenance": {
@@ -62,7 +63,8 @@
         "villa_alc_ai",
         "officeworld",
         "murmur",
-        "media_studio"
+        "media_studio",
+        "products"
       ]
     }
   },

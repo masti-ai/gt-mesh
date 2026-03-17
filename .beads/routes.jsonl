@@ -2,14 +2,9 @@
 {"prefix":"vap-","path":"villa_ai_planogram/mayor/rig"}
 {"prefix":"hq-","path":"."}
 {"prefix":"hq-cv-","path":"."}
-{"prefix":"gta-","path":"gt_arcade"}
-{"prefix":"gtm-","path":"gt_mesh"}
-{"prefix":"cnt-","path":"content_studio"}
 {"prefix":"img-","path":"image_studio"}
-{"prefix":"ims-","path":"image_studio"}
 {"prefix":"ds-","path":"deepwork_site"}
 {"prefix":"of-","path":"officeworld/mayor/rig"}
-{"prefix":"osl-","path":"oss_lab"}
-{"prefix":"rl-","path":"research_lab"}
 {"prefix":"mur-","path":"murmur"}
 {"prefix":"med-","path":"media_studio"}
+{"prefix":"prd-","path":"products"}
