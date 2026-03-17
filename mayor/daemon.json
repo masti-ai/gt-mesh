@@ -36,7 +36,8 @@
         "deepwork_site",
         "villa_alc_ai",
         "officeworld",
-        "murmur"
+        "murmur",
+        "media_studio"
       ]
     },
     "scheduled_maintenance": {
@@ -60,7 +61,8 @@
         "deepwork_site",
         "villa_alc_ai",
         "officeworld",
-        "murmur"
+        "murmur",
+        "media_studio"
       ]
     }
   },
